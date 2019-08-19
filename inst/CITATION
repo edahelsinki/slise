@@ -1,0 +1,21 @@
+citHeader("To cite SLISE in publications use:")
+
+citEntry(entry = "InProceedings",
+  title        = "Sparse Robust Regression for Explaining Classifiers",
+  author       = personList(
+                    as.person("Anton Björklund"),
+                    as.person("Andreas Henelius"),
+                    as.person("Emilia Oikarinen"),
+                    as.person("Kimmo Kallonen"),
+                    as.person("Kai Puolamäki")),
+                  
+  journal      = "Lecture Notes in Computer Science",
+  booktitle    = "Proceedings of the 22nd International Conference on Discovery Science",
+  year         = "2019",
+
+  textVersion  = paste(
+    "Anton Björklund, Andreas Henelius, Emilia Oikarinen, Kimmo Kallonen, and Kai Puolamäki.",
+    "Sparse robust regression for explaining classifiers.",
+    "Proceedings of the 22nd International Conference on Discovery Science.",
+    "2019.")
+)

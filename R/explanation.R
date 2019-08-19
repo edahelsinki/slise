@@ -1,14 +1,11 @@
 # This script contains functions for plotting, printing and showing SLISE regressions and explanations
 
-library(ggplot2)
 require(scatterplot3d)
 require(grid)
 require(gridExtra)
 require(reshape2)
 require(crayon)
 require(wordcloud)
-
-source("explanation_image.R")
 
 
 #' Plot the robust regression or explanation from slise
@@ -20,12 +17,11 @@ source("explanation_image.R")
 #' @param other list of other slise objects to include in the plot
 #' @param threed plot in 3D with two columns
 #'
-#' @return
 #' @export
 #'
 #' @examples
 #' plot(slise.fit(data, response, epsilon=0.1, variables=5))
-plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = NULL, threed = FALSE) {
+plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = NULL, threed = FALSE, ...) {
     if (length(cols) == 1) {
         x <- c(min(slise$X[, cols]), max(slise$X[, cols]))
         if (length(labels) == 1)
@@ -59,7 +55,7 @@ plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = 
         if (!is.null(slise$x) && !is.null(slise$y)) {
             plt <- plt + geom_point(aes(slise$x[[cols]], slise$y), col = "red")
         }
-        plot(plt)
+        graphics::plot(plt)
     } else if (length(cols) == 2) {
         if (!is.null(other))
             warning("Multiple slise objects only allowed when plotting one column")
@@ -78,7 +74,7 @@ plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = 
             if (!is.null(slise$x)) {
                 plt <- plt + geom_point(aes(slise$x[[x_var]], slise$x[[y_var]]), col = "red")
             }
-            plot(plt)
+            graphics::plot(plt)
         } else {
             plt <- scatterplot3d(slise$X[, x_var], slise$X[, y_var], slise$Y,
                 xlab = xlab, ylab = ylab, zlab = zlab, pch = 16, color = rgb(0.2, 0.2, 0.8, 0.3), main = title)
@@ -99,10 +95,11 @@ plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = 
 #' @param slise The slise object
 #' @param title (Optional) The title of the result
 #'
-#' @return
 #' @export
 #'
-print.slise <- function(slise, title = "SLISE") {
+#' @examples
+#' print(slise.fit(data, response, epsilon=0.1, variables=5))
+print.slise <- function(slise, title = "SLISE", ...) {
     Coefficients <- slise$coefficients
     Alpha <- slise$scaled$expand_alpha(slise$alpha)
     if (length(Alpha) < length(Coefficients))
@@ -147,20 +144,22 @@ show.default <- function(x) methods::show(x)
 #' @param slise the slise object to show
 #' @param type Type of explanation (bar, distribution, image, text, image_scatter)
 #' @param class_labels (Optional) names of the two classes
-#' @param real_value (Optional, title) the real response for the explained instance
-#' @param title (Optional, title) A title to add to the explanation
-#' @param probability (Optional, title) is The prediction a probability (TRUE)
+#' @param real_value (Optional) the real response for the explained instance
+#' @param title (Optional) A title to add to the explanation
+#' @param probability (Optional) is The prediction a probability (TRUE)
 #' @param ... Additional parameters to the visualisation
 #'
-#' @return
 #' @export
 #'
-show.slise <- function(slise, type = "bar", class_labels = c("Class 0", "Class 1"), title = "SLISE", real_value = NULL, ...) {
+#' @examples
+#' show(slise.fit(data, response, epsilon=0.1, variables=5), "image")
+show.slise <- function(slise, type = "bar", class_labels = c("Class 0", "Class 1"), title = "SLISE",
+        real_value = NULL, probability = TRUE, ...) {
     if (is.null(type)) type <- ifelse(ncol(slise$X) > 20, "image", "bar")
     if (is.null(slise$x) || is.null(slise$y)) {
         stop("Can only show explanations for actual explanations (use slise.explain)")
     }
-    title <- .show_get_title(slise, main_title = title, class_labels = class_labels, real_value = real_value, ...)
+    title <- .show_get_title(slise, main_title = title, class_labels = class_labels, real_value = real_value, probability = probability, ...)
     if (identical(type, "bar")) {
         show.slise_bar(slise, title = title, class_labels = class_labels)
     } else if (identical(type, "distribution") || identical(type, "dist")) {
@@ -205,10 +204,10 @@ show.slise_bar <- function(slise, class_labels = c("", ""), title = "") {
     ord <- rev(order(abs(alpha)))
     iord <- rev(c(1, ord + 1))
     # Subset
-    dataset_low <- c(quantile(Y, 0.05) * 3, sapply(1:ncol(X), function(i) quantile(X[, i], 0.05)))
-    dataset_high <- c(quantile(Y, 0.95) * 3, sapply(1:ncol(X), function(i) quantile(X[, i], 0.95)))
-    subset_low <- c(quantile(Y[slise$subset], 0.05) * 3, sapply(1:ncol(X), function(i) quantile(X[slise$subset, i], 0.05)))
-    subset_high <- c(quantile(Y[slise$subset], 0.95) * 3, sapply(1:ncol(X), function(i) quantile(X[slise$subset, i], 0.95)))
+    dataset_low <- c(stats::quantile(Y, 0.05) * 3, sapply(1:ncol(X), function(i) stats::quantile(X[, i], 0.05)))
+    dataset_high <- c(stats::quantile(Y, 0.95) * 3, sapply(1:ncol(X), function(i) stats::quantile(X[, i], 0.95)))
+    subset_low <- c(stats::quantile(Y[slise$subset], 0.05) * 3, sapply(1:ncol(X), function(i) stats::quantile(X[slise$subset, i], 0.05)))
+    subset_high <- c(stats::quantile(Y[slise$subset], 0.95) * 3, sapply(1:ncol(X), function(i) stats::quantile(X[slise$subset, i], 0.95)))
     subset_point <- c(y * 3, x)
     subset_names <- factor(c(sprintf("Predicted (%.3f)", slise$y), mapply(function(n, v) sprintf("%s (%.3f)", n, v), var_names, slise$x[mask])))
     plt_subset <- ggplot() +
@@ -245,7 +244,7 @@ show.slise_image <- function(slise, title = "", class_labels = c("", ""), width 
     stopifnot(width * height == length(slise$x))
     alpha <- slise$scaled$expand_alpha(slise$alpha)[-1]
     plt <- slise_expl_image(alpha, slise$x, width, height, ..., class_labels = class_labels, legend = "bottom")
-    plot(plt + ggtitle(title))
+    graphics::plot(plt + ggtitle(title))
 }
 
 # Plot an EMNIST explanation with a saliency map and the image
@@ -301,7 +300,7 @@ show.slise_text <- function(slise, title, class_labels, text = NULL, tokens = NU
     cat("  Legend:", make_style(rgb(0.8, 0, 0))(class_labels[1]), "Neutral",
         make_style(rgb(0, 0.7, 0))(class_labels[2]), silver("Unknown"), "  \n")
     vmax <- max(abs(slise$alpha[-1]))
-    vmed <- median(abs(slise$alpha[-1]))
+    vmed <- stats::median(abs(slise$alpha[-1]))
     th <- vmax * 0.5 + vmed * 0.5
     treshold <- th * treshold
     color <- function(v, t) {
@@ -347,7 +346,7 @@ show.slise_text <- function(slise, title, class_labels, text = NULL, tokens = NU
         wordcloud::wordcloud(names(slise$coefficients)[mask], abs(slise$alpha[mask]),
             colors = ifelse(slise$alpha[mask] > 0, "#4dac26", "#d01c8b"),
             ordered.colors = TRUE, use.r.layout = TRUE)
-        par(mar = rep(0, 4))
+        graphics::par(mar = rep(0, 4))
     }
     invisible(slise)
 }

@@ -8,7 +8,7 @@ require(robustbase)
 require(glmnet)
 require(pense)
 require(parallel)
-source("slise.R")
+library(slise)
 
 DATA_DIR <- "experiments/data"
 
@@ -37,7 +37,7 @@ regression <- function(X, Y = NULL, method = "slise", epsilon = 0.1, ..., lambda
     } else if (method == "ls" || method == "ols") {
         res <- lm(data$Y ~ data$X)$coefficients
     } else if (method == "resistant" || method == "lts") {
-        res <- lqs(data$Y ~ data$X, quantile = size)$coefficients
+        res <- lqs(data$Y ~ data$X, stats::quantile = size)$coefficients
     } else if (method == "lts2" || method == "fastlts") {
         res <- ltsReg(data$X, data$Y, alpha = size, intercept = TRUE)$coefficients
     } else if (method == "lts3" || method == "sparselts") {

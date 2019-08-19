@@ -9,7 +9,6 @@
 #' @param remove_constant Should constant columns be removed (TRUE)
 #'
 #' @return a list(scaled, center, scale, mask)
-#' @export
 #'
 scale_robust <- function(x, center=TRUE, scale = TRUE, remove_constant = TRUE) {
     if (is.null(dim(x))) dim(x) <- c(length(x), 1)
@@ -56,7 +55,7 @@ scale_robust <- function(x, center=TRUE, scale = TRUE, remove_constant = TRUE) {
 #' @return a list(scaled, center, scale)
 #'
 scale_one_range <- function(x) {
-    qs <- quantile(x, c(0.05, 0.95), names = FALSE)
+    qs <- stats::quantile(x, c(0.05, 0.95), names = FALSE)
     if (qs[1] >= 0 && qs[2] <= 1 && qs[1] < 0.5 && qs[2] > 0.5) {
         list(scaled = x - 0.5, scale = 1, center = 0.5)
     } else {

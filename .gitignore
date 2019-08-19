@@ -11,7 +11,6 @@ __pycache__
 *.rds
 *ACLiC*
 .Rproj.user
-*Rproj
 r/*.html
 *.RData
 *.aux
@@ -27,7 +26,6 @@ r/*.html
 *-Ex.R
 /*.tar.gz
 /*.Rcheck/
-.Rproj.user/
 vignettes/*.html
 vignettes/*.pdf
 .httr-oauth

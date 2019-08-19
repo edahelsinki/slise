@@ -1,16 +1,11 @@
 # This script contains the SLISE functions (slise.fit and slise.explain)
 
-source("optimisation.R")
-source("data.R")
-source("explanation.R")
-
-
 #' SLISE Regression
 #' Use SLISE for robust regression.
 #'
 #' @param X matrix of independent variables
 #' @param Y vector of the response variable
-#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10%)
+#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10\%)
 #' @param lambda sparsity reguraliser
 #' @param ... other parameters to the optimiser
 #' @param scale Scale X by mean and standard deviation (FALSE)
@@ -38,7 +33,7 @@ slise.fit <- function(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit
     X <- as.matrix(X)
     data <- data_preprocess(X, Y, scale = scale, intercept = intercept, logit_tr = logit, scale_y = scale_y)
     # Initialisation
-    alpha <- .lm.fit(data$X, data$Y)$coefficients
+    alpha <- stats::.lm.fit(data$X, data$Y)$coefficients
     beta <- 0
     # Optimisation
     alpha <- graduated_optimisation(alpha, data$X, data$Y, epsilon = epsilon, lambda = lambda, ...)$par
@@ -57,7 +52,7 @@ slise.fit <- function(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit
 #' @param X matrix of independent variables
 #' @param Y vector of the response variable
 #' @param alpha Starting alpha
-#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10%)
+#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10\%)
 #' @param lambda sparsity reguraliser
 #' @param beta Starting sigmoid steepness
 #' @param ... other parameters to the optimiser
@@ -87,7 +82,7 @@ slise.raw <- function(X, Y, alpha = rep(0, ncol(X)), epsilon = 0.1, lambda = 0, 
 #' @param Y vector of the dependent variable
 #' @param x the sample to be explained (or index if y is null)
 #' @param y the prediction to be explained
-#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10%)
+#' @param epsilon error tolerance (will be scaled to represent a percentage, e.g. 0.1 == 10\%)
 #' @param lambda sparsity reguraliser
 #' @param ... other parameters to the optimiser
 #' @param scale Scale X by mean and standard deviation (FALSE)
@@ -120,7 +115,7 @@ slise.explain <- function(X, Y, x, y = NULL, epsilon = 0.1, lambda = 0, ..., sca
     xs <- data$scale_x(x)
     local <- data_local(data$X, data$Y, xs, data$scale_y(y))
     # Initialisation
-    alpha <- .lm.fit(local$X, local$Y)$coefficients
+    alpha <- stats::.lm.fit(local$X, local$Y)$coefficients
     beta <- 0
     # Optimisation
     alpha <- graduated_optimisation(alpha, local$X, local$Y, epsilon = epsilon, lambda = lambda, beta=beta, ...)$par
@@ -176,6 +171,8 @@ slise.explain_find <- function(..., lambda = 5, variables = 4, iters = 10, tresh
 #' BUT with sparsity from a combinatorial search rather than Lasso!
 #'
 #' @param X matrix of independent variables
+#' @param Y vector of the dependent variable
+#' @param x the sample to be explained
 #' @param ... other parameters to slise.explain
 #' @param variables the number of non-zero coefficients
 #'
@@ -187,7 +184,7 @@ slise.explain_comb <- function(X, Y, x, ..., variables = 4) {
     combs <- factorial(len) / factorial(variables) / factorial(len - variables)
     if (combs >= 30)
         warning(sprintf("The combinatorial search will take a long time (requires %d iterations)", combs))
-    res <- combn(1:len, variables, function(s) {
+    res <- utils::combn(1:len, variables, function(s) {
         X2 <- X
         for (i in (1:len)[-s])
             X2[, i] <- x[i]
@@ -249,7 +246,7 @@ create_slise <- function(alpha, X, Y, epsilon, lambda = 0, data = NULL, ...) {
 #' @return prediction vector
 #' @export
 #'
-predict.slise <- function(object, newdata = NULL) {
+predict.slise <- function(object, newdata = NULL, ...) {
     if (is.null(newdata)) {
         newdata <- object$scaled$X
     } else {

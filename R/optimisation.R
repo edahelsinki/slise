@@ -1,12 +1,7 @@
 # This script contains the optimisations for SLISE (Graduated Optimisation and OWL-QN)
 
-library(Rcpp)
-library(lbfgs)
-sourceCpp("loss_functions.cpp")
-source("utils.R")
 
 #' Smooth Loss
-#' A loss function for when you want gradients
 #'
 #' @param alpha The vector to calculate loss for
 #' @param X The data matrix
@@ -31,7 +26,6 @@ loss_smooth <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3) {
 }
 
 #' Smooth Loss Gradient
-#' Gradient for the smooth loss function
 #'
 #' @param alpha The vector to calculate loss-gradient for
 #' @param X The data matrix
@@ -63,7 +57,6 @@ loss_smooth_grad <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3) {
 
 
 #' Sharp Loss Function
-#' Exact loss function without gradients
 #'
 #' @param alpha The vector to calculate loss for
 #' @param X The data matrix
@@ -86,8 +79,7 @@ loss_sharp <- function(alpha, X, Y, epsilon = 0.1, lambda = 0) {
         -subsize_loss + regression_loss
 }
 
-#' OWL-QN for optimising loss_smooth
-#' Cpp implementation
+#' OWL-QN for optimising loss_smooth (Cpp implementation)
 #'
 #' @param alpha linear model to optimise
 #' @param X data matrix
@@ -101,13 +93,12 @@ loss_sharp <- function(alpha, X, Y, epsilon = 0.1, lambda = 0) {
 #' @return lbfgs object
 #'
 owlqn_c <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3, max_iterations = 250, ...) {
-    dc <- new(DataContainer, data = X, response = Y, beta = beta, epsilon = epsilon, lambda = 0)
-    lbfgs(loss_smooth_c_ptr(), loss_smooth_grad_c_ptr(), alpha, dc$.pointer, ...,
+    dc <- methods::new(DataContainer, data = X, response = Y, beta = beta, epsilon = epsilon, lambda = 0)
+    lbfgs::lbfgs(loss_smooth_c_ptr(), loss_smooth_grad_c_ptr(), alpha, dc$.pointer, ...,
         max_iterations = max_iterations, invisible = TRUE, orthantwise_c = lambda)
 }
 
-#' OWL-QN for optimising loss_smooth
-#' R implementation
+#' OWL-QN for optimising loss_smooth (R implementation)
 #'
 #' @param alpha linear model to optimise
 #' @param X data matrix
@@ -123,7 +114,7 @@ owlqn_c <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3, max_iterat
 owlqn_r <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3, max_iterations = 250, ...) {
     fn <- function(alpha) loss_smooth(alpha, X, Y, epsilon, 0, beta)
     gd <- function(alpha) loss_smooth_grad(alpha, X, Y, epsilon, 0, beta)
-    lbfgs(fn, gd, alpha, ..., max_iterations = max_iterations, invisible = TRUE, orthantwise_c = lambda)
+    lbfgs::lbfgs(fn, gd, alpha, ..., max_iterations = max_iterations, invisible = TRUE, orthantwise_c = lambda)
 }
 
 #' Calculate the Logarithm of the approximation ratio
@@ -152,7 +143,7 @@ log_approximation_ratio <- function(residuals, epsilon, beta1, beta2) {
     if (g.zero < 0) {
         ## If derivative at r=0 is negative the minimum is within r>0 and r<epsilon.
         ## (due to lg(0) < 0 and lg(epsilon) = -beta1*0.5 + beta2*0.5 > 0)
-        a <- uniroot(lg, lower = 0, upper = epsilon, f.lower = g.zero)$root
+        a <- stats::uniroot(lg, lower = 0, upper = epsilon, f.lower = g.zero)$root
         lK <- min(lf(0, beta1) - lf(0, beta2), lf(a, beta1) - lf(a, beta2))
     } else {
         ## If derivative at r=0 is positive the function has minimum at r<0 and hence the minimum
@@ -232,7 +223,7 @@ next_beta <- function(alpha, X, Y, epsilon = 0.1, beta = 0, beta_max = 25,
         beta_max
     } else {
         f <- function(b) log_approximation_ratio(residuals, epsilon, beta, b) - max_approx
-        beta_new <- uniroot(f, lower = beta, upper = beta_max, f.lower = -max_approx,
+        beta_new <- stats::uniroot(f, lower = beta, upper = beta_max, f.lower = -max_approx,
                 f.upper = log_approx - max_approx)$root
         max(beta_new, beta + beta_min_increase)
     }
@@ -251,14 +242,15 @@ next_beta <- function(alpha, X, Y, epsilon = 0.1, beta = 0, beta_max = 25,
 #' @param max_iterations maximum number of OWL-QN iterations (100)
 #' @param debug should debug statement be printed each iteration (FALSE)
 #' @param ... Additional parameters to OWL-QN
+#' @param beta_min_increase the minimum increase of beta each iteration (beta_max * 0.0005)
 #' @param beta_start_max Ignored
 #'
 #' @return lbfgs object with beta (max) and the number of iteration steps
 #'
 graduated_optimisation <- function(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 0, beta_max = 25,
-        max_approx = 1.2, max_iterations = 100, beta_min_increase = beta_max * 0.0005, debug = FALSE,
-        ..., beta_start_max = NULL) {
-    res <- list(par = if (is.null(alpha)) .lm.fit(X, Y)$coefficients else alpha)
+        max_approx = 1.2, max_iterations = 100, debug = FALSE,
+        ..., beta_min_increase = beta_max * 0.0005, beta_start_max = NULL) {
+    res <- list(par = if (is.null(alpha)) stats::.lm.fit(X, Y)$coefficients else alpha)
     while (beta < beta_max) {
         res <- owlqn_c(res$par, X, Y, epsilon, lambda, beta, max_iterations, ...)
         if (debug) grad_opt_debug(res$par, X, Y, epsilon, lambda, beta, beta_max)

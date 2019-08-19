@@ -2,13 +2,13 @@
 
 #' sigmoid function
 #'
-#' @param x
+#' @param x vector
 #' @return sigmoid(x)
 sigmoid <- function(x) 1 / (1 + exp(-x))
 
 #' derivative of sigmoid function
 #'
-#' @param x
+#' @param x vector
 #' @return Derivative of sigmoid(x).
 dsigmoid <- function(x) {
     s <- sigmoid(x)
@@ -17,13 +17,13 @@ dsigmoid <- function(x) {
 
 #' log-sigmoid function
 #'
-#' @param x
+#' @param x vector
 #' @return log(sigmoid(x))
 log_sigmoid <- function(x) ifelse(x >= 0, - log(1 + exp(-x)), x - log(1 + exp(x)))
 
 #' derivative of log-sigmoid function
 #'
-#' @param x
+#' @param x vector
 #' @return Derivative of log(sigmoid(x)).
 dlog_sigmoid <- function(x) 1 - sigmoid(x)
 
@@ -32,6 +32,7 @@ dlog_sigmoid <- function(x) 1 - sigmoid(x)
 #' Get the indecies of the n smallest values using partial sort
 #'
 #' @param x vector
+#' @param n the number of indecies
 #' @return vector of indecies
 which_min_n <- function(x, n) which(x <= sort(x, partial = n)[n])[1:n]
 
@@ -40,6 +41,7 @@ which_min_n <- function(x, n) which(x <= sort(x, partial = n)[n])[1:n]
 #' Count the non-zero coefficients
 #'
 #' @param x vector
+#' @param treshold treshold for approximately zero (0)
 #' @return number of non-zero values
 sparsity <- function(x, treshold = 0) sum(abs(x) > treshold)
 

@@ -1,6 +1,5 @@
 # This script contains helper functions for plotting explanations for images
 
-library(ggplot2)
 require(grid)
 require(gridExtra)
 require(reshape2)
@@ -163,7 +162,7 @@ slise_expl_theme_image <- function(plt, rotate = FALSE, flip_x = FALSE, flip_y =
 slise_expl_get_lineup <- function(slise, num_examples = 6, include_explained = TRUE, logits = FALSE) {
     inter <- 1 / num_examples
     if (logits) {
-        ys <- quantile(slise$scaled$Y[slise$subset], c(inter / 2, 1 - inter / 2))
+        ys <- stats::quantile(slise$scaled$Y[slise$subset], c(inter / 2, 1 - inter / 2))
         ys <- seq(ys[1], ys[2], (ys[2] - ys[1]) / (num_examples - 1))
         sels <- which(slise$subset)[sapply(ys, function(y) which.min(abs(slise$scaled$Y[slise$subset] - y)))]
     } else {

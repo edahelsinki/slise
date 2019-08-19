@@ -72,8 +72,8 @@
 
 
 
-#include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
 
 
 /* --------------------------------------------------
@@ -82,7 +82,7 @@
 
 class DataContainer;
 
-//' @export DataContainer
+//_' @export DataContainer
 class DataContainer {
 public:
     arma::mat data;
@@ -141,16 +141,20 @@ RCPP_MODULE(mod) {
 
 
 /* --------------------------------------------------
-   Sigmoid function.
+   Sigmoid function written in c++.
   -------------------------------------------------- */
-
 // [[Rcpp::export]]
-inline arma::vec sigmoidc(const arma::vec& x) {
+arma::vec sigmoidc(const arma::vec& x) {
     return (1 / (1 + arma::exp(-x)));
     // return (arma::exp(x) / (arma::exp(x) + 1));
 }
+inline arma::vec i_sigmoidc(const arma::vec& x) {
+    return (1 / (1 + arma::exp(-x)));
+}
 
-// [[Rcpp::export]]
+/* --------------------------------------------------
+   Dot product.
+  -------------------------------------------------- */
 double dotprod(const arma::vec& a, const arma::vec& b) {
     double res = 0;
     for (int i = 0; i < a.size(); i++)
@@ -158,7 +162,9 @@ double dotprod(const arma::vec& a, const arma::vec& b) {
     return res;
 }
 
-// [[Rcpp::export]]
+/* --------------------------------------------------
+   Clamp max.
+  -------------------------------------------------- */
 inline arma::vec clamp_max(const arma::vec& a, double b) {
     arma::vec res(a.size());
     for(int i = 0; i < a.size(); i++)
@@ -166,7 +172,9 @@ inline arma::vec clamp_max(const arma::vec& a, double b) {
     return res;
 }
 
-// [[Rcpp::export]]
+/* --------------------------------------------------
+   Clamp min.
+  -------------------------------------------------- */
 inline arma::vec clamp_min(const arma::vec& a, double b) {
     arma::vec res(a.size());
     for(int i = 0; i < a.size(); i++)
@@ -174,12 +182,17 @@ inline arma::vec clamp_min(const arma::vec& a, double b) {
     return res;
 }
 
+
+/* --------------------------------------------------
+   Clamp min according to another vector.
+  -------------------------------------------------- */
 inline arma::vec clamp_max_other(const arma::vec& a, const arma::vec& b, double c) {
     arma::vec res(a.size());
     for(int i = 0; i < a.size(); i++)
         res[i] = b[i] < c ? a[i] : c;
     return res;
 }
+
 
 /* --------------------------------------------------
    Smooth loss function.
@@ -206,7 +219,7 @@ inline double loss_smooth_c(const arma::vec& alpha,
     double betax = beta / epsilonx;
     
     arma::vec distances = arma::pow(data * alpha - response, 2);
-    arma::vec subsize   = sigmoidc(betax * (epsilonx - distances));
+    arma::vec subsize   = i_sigmoidc(betax * (epsilonx - distances));
     arma::vec loss      = clamp_max(distances - epsilony, 0); //phi(x) ~ clamp_max(x, 0)
 
     double out = arma::accu(subsize % loss) / distances.size();
@@ -240,7 +253,7 @@ Rcpp::NumericVector loss_smooth_c_dc(const SEXP xs, const SEXP dcptr) {
 
 
 /* --------------------------------------------------
-   Gradient of smooth loss function.
+   Gradient of the smooth loss function.
 
    alpha	: alpha vector
    data		: data matrix
@@ -265,7 +278,7 @@ inline Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha,
     arma::colvec distances2 = arma::pow(distances, 2);
 
     arma::colvec f = distances2 / data.n_rows - epsilonx;
-    arma::colvec s = sigmoidc(betax * (epsilonx - distances2));
+    arma::colvec s = i_sigmoidc(betax * (epsilonx - distances2));
 
     double k1 = 2.0 / data.n_rows;
     arma::colvec k2 = -2.0 * betax * (s - pow(s, 2));
@@ -321,7 +334,7 @@ inline Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr) {
     arma::colvec distances  = dc->data * alpha - dc->response;
     arma::colvec distances2 = arma::pow(distances, 2);
     
-    arma::colvec subsize   = sigmoidc(betax * (epsilonx - distances2));
+    arma::colvec subsize   = i_sigmoidc(betax * (epsilonx - distances2));
     arma::colvec loss = distances2 / dc->data.n_rows - epsilonx;
 
     dc->loss = arma::accu(subsize % clamp_max(loss, 0));  //phi(x) ~ clamp_max(x, 0)
