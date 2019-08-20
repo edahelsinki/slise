@@ -1,6 +1,6 @@
 Package: slise
 Title: Sparse Linear Subset Explanations
-Version: 0.9
+Version: 1.0.0
 Authors@R: person("Anton", "Björklund", email = "anton.bjorklund@helsinki.fi", role = c("aut", "cre"))
 Description: An implementation of the SLISE
     algorithm for robust regression and
