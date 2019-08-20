@@ -19,7 +19,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // loss_smooth_c
-inline double loss_smooth_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
+double loss_smooth_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
 RcppExport SEXP _slise_loss_smooth_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP betaSEXP, SEXP epsilonSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -47,7 +47,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // loss_smooth_grad_c
-inline Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
+Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
 RcppExport SEXP _slise_loss_smooth_grad_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP betaSEXP, SEXP epsilonSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -75,7 +75,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // lg_combined_smooth_c_dc
-inline Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr);
+Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr);
 RcppExport SEXP _slise_lg_combined_smooth_c_dc(SEXP xsSEXP, SEXP dcptrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

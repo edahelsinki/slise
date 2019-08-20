@@ -72,6 +72,7 @@
 
 
 
+// [[Rcpp::plugins(cpp14)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 
@@ -206,7 +207,7 @@ inline arma::vec clamp_max_other(const arma::vec& a, const arma::vec& b, double 
   -------------------------------------------------- */
 
 // [[Rcpp::export]]
-inline double loss_smooth_c(const arma::vec& alpha,
+double loss_smooth_c(const arma::vec& alpha,
 			    const arma::mat& data,
 			    const arma::vec& response,
 			    const double& beta,
@@ -264,7 +265,7 @@ Rcpp::NumericVector loss_smooth_c_dc(const SEXP xs, const SEXP dcptr) {
   -------------------------------------------------- */
 
 // [[Rcpp::export]]
-inline Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha,
+Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha,
 					      const arma::mat& data,
 					      const arma::vec& response,
 					      const double& beta,
@@ -323,7 +324,7 @@ Rcpp::NumericVector loss_smooth_grad_c_dc(const SEXP xs, const SEXP dcptr) {
   -------------------------------------------------- */
 
 // [[Rcpp::export]]
-inline Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr) {
+Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr) {
     const arma::vec alpha = Rcpp::as<arma::vec>(xs);
     const Rcpp::XPtr<DataContainer> dc(dcptr);
 
