@@ -103,7 +103,7 @@ plot.slise <- function(slise, cols = 1, title = "SLISE", labels = NULL, other = 
 #' response <- rnorm(100)
 #' slise <- slise.fit(data, response, epsilon=0.1)
 #' print(slise)
-print.slise <- function(slise, title = "SLISE", ...) {
+print.slise <- function(slise, ..., title = "SLISE") {
     Coefficients <- slise$coefficients
     Alpha <- slise$scaled$expand_alpha(slise$alpha)
     if (length(Alpha) < length(Coefficients))
@@ -138,15 +138,15 @@ print.slise <- function(slise, title = "SLISE", ...) {
 
 summary.slise <- print.slise
 
-show <- function(x, ...) {
-    UseMethod("show", x)
+explain <- function(x, ...) {
+    UseMethod("explain", x)
 }
-show.default <- function(x) methods::show(x)
+explain.default <- function(x) methods::explain(x)
 
 #' Show a SLISE explanation
 #'
 #' @param slise the slise object to show
-#' @param type Type of explanation (bar, distribution, image, text, image_scatter)
+#' @param type Type of explanation (bar, distribution, image, image2, text, image_scatter)
 #' @param class_labels (Optional) names of the two classes
 #' @param real_value (Optional) the real response for the explained instance
 #' @param title (Optional) A title to add to the explanation
@@ -160,32 +160,32 @@ show.default <- function(x) methods::show(x)
 #' response <- rnorm(100)
 #' slise <- slise.explain(data, response, 10, epsilon=0.1)
 #' show(slise)
-show.slise <- function(slise, type = "bar", class_labels = c("Class 0", "Class 1"),
+explain.slise <- function(slise, type = "bar", class_labels = c("Class 0", "Class 1"),
         title = "SLISE", real_value = NULL, probability = TRUE, ...) {
     if (is.null(type)) type <- ifelse(ncol(slise$X) > 20, "image", "bar")
     if (is.null(slise$x) || is.null(slise$y)) {
         stop("Can only show explanations for actual explanations (use slise.explain)")
     }
-    title <- .show_get_title(slise, main_title = title, class_labels = class_labels, real_value = real_value, probability = probability, ...)
+    title <- explain_slise_title(slise, main_title = title, class_labels = class_labels, real_value = real_value, probability = probability, ...)
     if (identical(type, "bar")) {
-        show.slise_bar(slise, title = title, class_labels = class_labels)
+        explain_slise_bar(slise, title = title, class_labels = class_labels)
     } else if (identical(type, "distribution") || identical(type, "dist")) {
-        show.slise_distribution(slise, title = title, class_labels = class_labels)
+        explain_slise_distribution(slise, title = title, class_labels = class_labels)
     } else if (identical(type, "image")) {
-        show.slise_image(slise, title = title, class_labels = class_labels, ...)
+        explain_slise_image(slise, title = title, class_labels = class_labels, ...)
     } else if (identical(type, "image2")) {
-        show.slise_image2(slise, title = title, class_labels = class_labels, ...)
+        explain_slise_image2(slise, title = title, class_labels = class_labels, ...)
     } else if (identical(type, "image_scatter")) {
-        show.slise_image_scatter(slise, title = title, class_labels = class_labels, ...)
+        explain_slise_image_scatter(slise, title = title, class_labels = class_labels, ...)
     } else if (identical(type, "text")) {
-        show.slise_text(slise, title = title, class_labels = class_labels, ...)
+        explain_slise_text(slise, title = title, class_labels = class_labels, ...)
     } else {
         stop("Unknown explanation visualisation type")
     }
 }
 
 # Plot a tabular explanation with bar graphs
-show.slise_bar <- function(slise, class_labels = c("", ""), title = "") {
+explain_slise_bar <- function(slise, class_labels = c("", ""), title = "") {
     if (!requireNamespace("gridExtra", quietly = TRUE)) {
         stop("Package \"gridExtra\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -246,17 +246,17 @@ show.slise_bar <- function(slise, class_labels = c("", ""), title = "") {
 }
 
 # Plot an EMNIST explanation with a saliency map and outline of the digit
-show.slise_image <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, ...) {
+explain_slise_image <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, ...) {
     if (is.null(width) && is.null(height))
         width <- height <- floor(sqrt(length(slise$x)))
     stopifnot(width * height == length(slise$x))
     alpha <- slise$scaled$expand_alpha(slise$alpha)[-1]
-    plt <- slise_expl_image(alpha, slise$x, width, height, ..., class_labels = class_labels, legend = "bottom")
+    plt <- explain_img_slise_image(alpha, slise$x, width, height, ..., class_labels = class_labels, legend = "bottom")
     graphics::plot(plt + ggplot2::ggtitle(title))
 }
 
 # Plot an EMNIST explanation with a saliency map and the image
-show.slise_image2 <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, ...) {
+explain_slise_image2 <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, ...) {
     if (!requireNamespace("gridExtra", quietly = TRUE)) {
         stop("Package \"gridExtra\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -269,13 +269,13 @@ show.slise_image2 <- function(slise, title = "", class_labels = c("", ""), width
         width <- height <- floor(sqrt(length(slise$x)))
     stopifnot(width * height == length(slise$x))
     alpha <- slise$scaled$expand_alpha(slise$alpha)[-1]
-    plt <- slise_expl_image(alpha, NULL, width, height, ..., class_labels = class_labels, legend = "left")
-    plt2 <- slise_expl_image(slise$x, NULL, width, height, ..., legend = "right", colors = slise_expl_color_bw(), scale_colors = FALSE)
+    plt <- explain_img_slise_image(alpha, NULL, width, height, ..., class_labels = class_labels, legend = "left")
+    plt2 <- explain_img_slise_image(slise$x, NULL, width, height, ..., legend = "right", colors = explain_slise_color_bw(), scale_colors = FALSE)
     gridExtra::grid.arrange(plt + ggplot2::ggtitle("Saliency Map"), plt2 + ggplot2::ggtitle("Image"), ncol=2, top = grid::textGrob(title, gp = grid::gpar(cex = 1.2)))
 }
 
 # Plot an EMNIST explanation with a scatterplot and a lineup
-show.slise_image_scatter <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, num_examples = 5, ...) {
+explain_slise_image_scatter <- function(slise, title = "", class_labels = c("", ""), width = NULL, height = NULL, num_examples = 5, ...) {
     if (!requireNamespace("gridExtra", quietly = TRUE)) {
         stop("Package \"gridExtra\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -288,11 +288,11 @@ show.slise_image_scatter <- function(slise, title = "", class_labels = c("", "")
         width <- height <- floor(sqrt(length(slise$x)))
     stopifnot(width * height == length(slise$x))
     alpha <- slise$scaled$expand_alpha(slise$alpha)[-1]
-    lineup <- slise_expl_get_lineup(slise, num_examples, TRUE)
+    lineup <- explain_slise_get_lineup(slise, num_examples, TRUE)
     images <- do.call(rbind, lapply(lineup$probabilities, function(p) alpha))
-    plt_cmp <- slise_expl_lineup(images, paste("p ==", lineup$probabilities), lineup$images, width, height, ..., class_labels = class_labels, legend = "bottom", nrow = 1) +
+    plt_cmp <- explain_img_slise_lineup(images, paste("p ==", lineup$probabilities), lineup$images, width, height, ..., class_labels = class_labels, legend = "bottom", nrow = 1) +
         ggplot2::ggtitle(paste0("Numbers from the subset with different probabilities ('", class_labels[[1]], "' to '", class_labels[[2]], "')"))
-    plt_scatter <- slise_expl_scatter(slise, width, height, lineup, ...)
+    plt_scatter <- explain_img_slise_scatter(slise, width, height, lineup, ...)
     plt_scatter <- plt_scatter + ggplot2::ggtitle(title)
     sub_bal <- mean(slise$scaled$Y[slise$subset] > 0)
     layout <- matrix(c(1, 1, 2, 1, 1, 2), 3, 2)
@@ -305,7 +305,7 @@ show.slise_image_scatter <- function(slise, title = "", class_labels = c("", "")
 }
 
 # Print a text explanation, with optional weights and plotted wordcloud
-show.slise_text <- function(slise, title, class_labels, text = NULL, tokens = NULL, treshold = 1e-2, print_weights = TRUE, print_weights_all = FALSE, wordcloud = TRUE, ...) {
+explain_slise_text <- function(slise, title, class_labels, text = NULL, tokens = NULL, treshold = 1e-2, print_weights = TRUE, print_weights_all = FALSE, wordcloud = TRUE, ...) {
     if (!requireNamespace("crayon", quietly = TRUE)) {
         stop("Package \"crayon\" needed for coloring words. Please install it.",
         call. = FALSE)
@@ -384,7 +384,7 @@ show.slise_text <- function(slise, title, class_labels, text = NULL, tokens = NU
 }
 
 # Plot a tabular explanation with density plots
-show.slise_distribution <- function(slise, title, class_labels) {
+explain_slise_distribution <- function(slise, title, class_labels) {
     if (!requireNamespace("gridExtra", quietly = TRUE)) {
         stop("Package \"gridExtra\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -457,7 +457,7 @@ show.slise_distribution <- function(slise, title, class_labels) {
 }
 
 # Generate title with additional information
-.show_get_title <- function(slise, real_value = NULL, class_labels = NULL, main_title = NULL, probability = TRUE, ...) {
+explain_slise_title <- function(slise, real_value = NULL, class_labels = NULL, main_title = NULL, probability = TRUE, ...) {
     title <- list(sep = ",   ")
     if (!is.null(main_title)) {
         title <- c(title, main_title)

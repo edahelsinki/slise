@@ -11,7 +11,7 @@
 source("experiments/lime.R")
 require(xtable)
 
-DIRECTORY <- "results"
+DIRECTORY <- "experiments/results"
 
 generate_explanations_emnist <- function(dir = DIRECTORY) {
     # Get data
@@ -21,7 +21,7 @@ generate_explanations_emnist <- function(dir = DIRECTORY) {
     expl <- slise.explain(emnist$X, emnist$Y, selected, epsilon = 0.1, lambda = 2, logit = TRUE)
     # Plot image
     cairo_pdf(file.path(dir, "explanation_emnist_digit.pdf"), 0.3*9, 0.3*9)
-    plot(slise_expl_image(emnist$X[selected, ], colors=slise_expl_color_bw(), scale_colors=FALSE))
+    plot(explain_img_slise_image(emnist$X[selected, ], colors=explain_slise_color_bw(), scale_colors=FALSE))
     dev.off()
     # Plot dist
     cairo_pdf(file.path(dir, "explanation_emnist_dist.pdf"), 0.3*9, 0.3*9)
@@ -35,18 +35,18 @@ generate_explanations_emnist <- function(dir = DIRECTORY) {
     dev.off()
     # Plot linear model
     cairo_pdf(file.path(dir, "explanation_emnist_model.pdf"), 0.4*8, 0.3*8)
-    plot(slise_expl_image(expl$coefficients[-1], expl$x, 28, 28, class_labels=c("not 2", "is 2"), legend="right"))
+    plot(explain_img_slise_image(expl$coefficients[-1], expl$x, 28, 28, class_labels=c("not 2", "is 2"), legend="right"))
     dev.off()
     # Plot lineup
-    lineup <- slise_expl_get_lineup(expl, 6, FALSE, TRUE)
+    lineup <- explain_slise_get_lineup(expl, 6, FALSE, TRUE)
     images <- do.call(rbind, lapply(lineup$probabilities, function(p) expl$coefficients[-1]))
     cairo_pdf(file.path(dir, "explanation_emnist_lineup.pdf"), 8, 0.2*8)
-    plot(slise_expl_lineup(images, paste("p =", lineup$probabilities), lineup$images, class_labels = c("not 2", "is 2"), legend = "right", nrow=1))
+    plot(explain_img_slise_lineup(images, paste("p =", lineup$probabilities), lineup$images, class_labels = c("not 2", "is 2"), legend = "right", nrow=1))
     dev.off()
     # Plot scatter
     set.seed(42)
     cairo_pdf(file.path(dir, "explanation_emnist_scatter.pdf"), 0.45*12, 0.35*12)
-    plot(slise_expl_scatter(expl, lineup = lineup, scatter_size=0.035, logits=FALSE))
+    plot(explain_img_slise_scatter(expl, lineup = lineup, scatter_size=0.035, logits=FALSE))
     dev.off()
     # Plot progression
     progression <- lapply(c(0.64, 0.32, 0.16, 0.08, 0.04, 0.02), function(e) {
@@ -57,7 +57,7 @@ generate_explanations_emnist <- function(dir = DIRECTORY) {
     contours <- do.call(rbind, lapply(progression, function(p) p$x))
     labels <- lapply(progression, function(p) sprintf("ε = %.2f\nλ = %.2f, |S| = %.2f", p$epsilon, p$lambda, mean(p$subset)))
     cairo_pdf(file.path(dir, "explanation_emnist_epsilon.pdf"), 8, 0.25*8)
-    plot(slise_expl_lineup(imgs, labels, contours, class_labels=c("not 2", "is 2"), legend="right", nrow=1))
+    plot(explain_img_slise_lineup(imgs, labels, contours, class_labels=c("not 2", "is 2"), legend="right", nrow=1))
     dev.off()
     # Plot limited
     emnist2 <- data_emnist(classifier="digits2")
@@ -66,7 +66,7 @@ generate_explanations_emnist <- function(dir = DIRECTORY) {
     expl2 <- slise.explain(emnist2$X[mask,], emnist2$Y[mask], emnist$X[selected,], emnist$Y[selected],
                            epsilon = 0.1, lambda = 2, logit = TRUE)
     cairo_pdf(file.path(dir, "explanation_emnist_other.pdf"), 0.25*8, 0.3*8)
-    plot(slise_expl_image(expl2$coefficients[-1], expl2$x, 28, 28, class_labels=c(other, "2"), legend="bottom"))
+    plot(explain_img_slise_image(expl2$coefficients[-1], expl2$x, 28, 28, class_labels=c(other, "2"), legend="bottom"))
     dev.off()
 }
 

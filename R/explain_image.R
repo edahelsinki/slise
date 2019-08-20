@@ -1,27 +1,27 @@
 # This script contains helper functions for plotting explanations for images
 
 
-slise_expl_color_bw <- function() c("white", "black")
-slise_expl_color_rg <- function() c("red2", "green3")
-slise_expl_color_rg_cb <- function() c("#d01c8b", "#4dac26")
-slise_expl_color_cb <- function() c("#e66101", "#5e3c99")
+explain_slise_color_bw <- function() c("white", "black")
+explain_slise_color_rg <- function() c("red2", "green3")
+explain_slise_color_rg_cb <- function() c("#d01c8b", "#4dac26")
+explain_slise_color_cb <- function() c("#e66101", "#5e3c99")
 
 # Scale the color intensity to increase visibility when printed
-slise_expl_scale_colors <- function(x) {
+explain_slise_scale_colors <- function(x) {
     x <- x / max(abs(x))
     sigmoid(x * 4) * 2 - 1
 }
 
 # Plot a single image with optional outline
-slise_expl_image <- function(img, contour = NULL, width = 28, height = 28,
-        colors = slise_expl_color_cb(), class_labels = NULL, ..., scale_colors = TRUE) {
+explain_img_slise_image <- function(img, contour = NULL, width = 28, height = 28,
+        colors = explain_slise_color_cb(), class_labels = NULL, ..., scale_colors = TRUE) {
     if (!requireNamespace("reshape2", quietly = TRUE)) {
         stop("Package \"reshape2\" needed for the function to work. Please install it.",
         call. = FALSE)
     }
     image <- reshape2::melt(matrix(img, height, width))
     if (scale_colors)
-        image$value <- slise_expl_scale_colors(image$value)
+        image$value <- explain_slise_scale_colors(image$value)
     limits2 <- c(-1, 1) * max(abs(image$value))
     plt <- ggplot2::ggplot(image, ggplot2::aes(image$Var2, image$Var1)) + ggplot2::geom_raster(ggplot2::aes(fill = image$value), interpolate = FALSE)
     if (is.null(class_labels))
@@ -33,12 +33,12 @@ slise_expl_image <- function(img, contour = NULL, width = 28, height = 28,
         contour <- reshape2::melt(matrix(contour, height, width))
         plt <- plt + ggplot2::stat_contour(ggplot2::aes(x = contour$Var2, y = contour$Var1, z = contour$value), data = contour, col = "black", bins = 1)
     }
-    slise_expl_theme_image(plt, ...)
+    explain_img_slise_theme(plt, ...)
 }
 
 # Plot a lineup of images with optional outlines
-slise_expl_lineup <- function(imgs, labels, contours = NULL, width = 28, height = 28,
-        colors = slise_expl_color_cb(), class_labels = NULL, ..., nrow = 3, scale_colors = TRUE) {
+explain_img_slise_lineup <- function(imgs, labels, contours = NULL, width = 28, height = 28,
+        colors = explain_slise_color_cb(), class_labels = NULL, ..., nrow = 3, scale_colors = TRUE) {
     if (!requireNamespace("reshape2", quietly = TRUE)) {
         stop("Package \"reshape2\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -48,7 +48,7 @@ slise_expl_lineup <- function(imgs, labels, contours = NULL, width = 28, height 
     images <- do.call(rbind, lapply(seq_along(labels), function(i) {
         image <- reshape2::melt(matrix(imgs[i,], width, height))
         if (scale_colors)
-            image$value <- slise_expl_scale_colors(image$value)
+            image$value <- explain_slise_scale_colors(image$value)
         image$label <- labels[[i]]
         if (!is.null(contours)) {
             cim <- reshape2::melt(contours[i,], width, height)
@@ -67,11 +67,11 @@ slise_expl_lineup <- function(imgs, labels, contours = NULL, width = 28, height 
     if (!is.null(contours)) {
         plt_img <- plt_img + ggplot2::stat_contour(ggplot2::aes(z = contours), col = "black", bins = 1)
     }
-    slise_expl_theme_image(plt_img, ...) + ggplot2::theme(strip.background = ggplot2::element_rect(fill = "white"), strip.text = ggplot2::element_text(color = "black"))
+    explain_img_slise_theme(plt_img, ...) + ggplot2::theme(strip.background = ggplot2::element_rect(fill = "white"), strip.text = ggplot2::element_text(color = "black"))
 }
 
 # Plot a scatterplot of images
-slise_expl_scatter <- function(slise, width = 28, height = 28, lineup = NULL, ..., scatter_size = 0.03, num_scatter = 100, logits = FALSE) {
+explain_img_slise_scatter <- function(slise, width = 28, height = 28, lineup = NULL, ..., scatter_size = 0.03, num_scatter = 100, logits = FALSE) {
     if (!requireNamespace("grid", quietly = TRUE)) {
         stop("Package \"grid\" needed for the function to work. Please install it.",
         call. = FALSE)
@@ -88,7 +88,7 @@ slise_expl_scatter <- function(slise, width = 28, height = 28, lineup = NULL, ..
         mask <- Y_slise >= -0.05 & Y_slise <= 1.05
     }
     X_mask <- -slise$X * 0.5 + 0.5
-    selected <- slise_expl_select_overlap(Y_black_box, Y_slise, scatter_size, scatter_size, sample(which(mask)), num_scatter)
+    selected <- explain_slise_select_overlap(Y_black_box, Y_slise, scatter_size, scatter_size, sample(which(mask)), num_scatter)
 
     plt <- ggplot2::ggplot() +
         ggplot2::geom_tile(ggplot2::aes(scaled_y, scaled_y, width = scatter_size / 3, height = scatter_size / 3, fill = "Explained")) +
@@ -147,7 +147,7 @@ slise_expl_scatter <- function(slise, width = 28, height = 28, lineup = NULL, ..
 }
 
 # Add theming to image plots
-slise_expl_theme_image <- function(plt, rotate = FALSE, flip_x = FALSE, flip_y = TRUE, aspect = 1, legend = "none") {
+explain_img_slise_theme <- function(plt, rotate = FALSE, flip_x = FALSE, flip_y = TRUE, aspect = 1, legend = "none") {
     plt <- plt + ggplot2::theme_light() +
         ggplot2::theme(legend.position = legend,
             axis.title.y = ggplot2::element_blank(), axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank(),
@@ -167,7 +167,7 @@ slise_expl_theme_image <- function(plt, rotate = FALSE, flip_x = FALSE, flip_y =
 }
 
 # Create the subset lineup
-slise_expl_get_lineup <- function(slise, num_examples = 6, include_explained = TRUE, logits = FALSE) {
+explain_slise_get_lineup <- function(slise, num_examples = 6, include_explained = TRUE, logits = FALSE) {
     inter <- 1 / num_examples
     if (logits) {
         ys <- stats::quantile(slise$scaled$Y[slise$subset], c(inter / 2, 1 - inter / 2))
@@ -194,7 +194,7 @@ slise_expl_get_lineup <- function(slise, num_examples = 6, include_explained = T
 # w,h: width,height
 # o:   order (index)
 # num: amount
-slise_expl_select_overlap <- function(x, y, w, h, o, num = 50) {
+explain_slise_select_overlap <- function(x, y, w, h, o, num = 50) {
     sel <- list()
     for (i in o) {
         add <- TRUE

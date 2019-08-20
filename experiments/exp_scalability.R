@@ -20,10 +20,10 @@
 ##        of hours (all valid results are saved).
 ##
 ## Running Manually:
-##        Rscript --vanilla experiments/exp_scalability.R results/tmp/scalability 1
+##        Rscript --vanilla experiments/exp_scalability.R experiments/tmp/scalability 1
 ##        ...
-##        Rscript --vanilla experiments/exp_scalability.R results/tmp/scalability 22
-##        Rscript --vanilla experiments/collect_results.R results/tmp/scalability results/scalability.rds
+##        Rscript --vanilla experiments/exp_scalability.R experiments/tmp/scalability 22
+##        Rscript --vanilla experiments/collect_results.R experiments/tmp/scalability experiments/results/scalability.rds
 ## --------------------------------------------------
 
 ## --------------------------------------------------
@@ -130,7 +130,7 @@ if (sys.nframe() == 0L) {
     args <- commandArgs(trailingOnly = TRUE)
 
     if (length(args) < 1) {
-        destdir <- "results/scalability"
+        destdir <- "experiments/results/scalability"
     } else {
         destdir <- args[1]
     }

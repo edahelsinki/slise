@@ -22,7 +22,7 @@ library(scales)
 library(latex2exp)
 source("experiments/utils.R")
 
-DIRECTORY <- "results"
+DIRECTORY <- "experiments/results"
 
 ## Algorithm order
 alg_list <- c("SLISE", "sparseLTS", "fastLTS", "MM Lasso", "MM Estimator", "LAD Lasso", "Lasso")
@@ -39,7 +39,7 @@ plot_scalability <- function(to_pdf = FALSE) {
     point <- format_format(big.mark = " ", decimal.mark = ",", scientific = FALSE)
 
     ## Read data
-    res_orig <- readRDS("results/scalability.rds")
+    res_orig <- readRDS("experiments/results/scalability.rds")
 
     timelimit <- 10 * 60
 
@@ -156,7 +156,7 @@ plot_scalability <- function(to_pdf = FALSE) {
 ## (2) Robustness
 ## --------------------------------------------------
 plot_robustness <- function() {
-    res_rob <- readRDS("results/robustness.rds")
+    res_rob <- readRDS("experiments/results/robustness.rds")
 
     res_rob$algorithm <- sapply(as.character(res_rob$method), method_to_label)
     res_rob$method    <- NULL
@@ -196,7 +196,7 @@ plot_robustness <- function() {
 ## (3) Optimality
 ## --------------------------------------------------
 plot_optimality <- function() {
-    res_opt <- readRDS("results/optimality.rds")
+    res_opt <- readRDS("experiments/results/optimality.rds")
 
     res_opt$algorithm <- sapply(as.character(res_opt$method), method_to_label)
     res_opt$method     <- NULL

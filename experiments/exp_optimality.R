@@ -45,7 +45,7 @@ if (sys.nframe() == 0L) {
     set.seed(42)
     data <- data_create(1000, 30, 5)
     df <- optimality_calculate(data$X, data$Y, scale=TRUE, lambda = 1e-6)
-    saveRDS(df, file = "results/optimality.rds", compress = "xz")
+    saveRDS(df, file = "experiments/results/optimality.rds", compress = "xz")
     # Plot results
     optimality_plot(df, show=TRUE, title="Optimality with Synthetic data (1000 x 30) at epsilon=0.1")
 }

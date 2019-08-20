@@ -60,6 +60,6 @@ if (sys.nframe() == 0L) {
     set.seed(42)
     jets <- data_jets(1000)
     res <- robustness_calculate(jets$X, jets$Y, iterations = 5, lambda = 1e-6)
-    saveRDS(res, file = "results/robustness.rds", compress = "xz")
+    saveRDS(res, file = "experiments/results/robustness.rds", compress = "xz")
     robustness_plot(res, title="Robustness with Physics Data")
 }

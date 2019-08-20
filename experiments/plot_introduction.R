@@ -11,7 +11,7 @@
 source("experiments/utils.R")
 source("experiments/lime.R")
 
-DIRECTORY <- "results"
+DIRECTORY <- "experiments/results"
 
 generate_robust_regression_example <- function(dir = DIRECTORY) {
     set.seed(42)

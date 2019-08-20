@@ -1,4 +1,5 @@
 # Helper methods for the experiments
+library(slise)
 
 require(MASS)
 require(MTE)
@@ -8,7 +9,6 @@ require(robustbase)
 require(glmnet)
 require(pense)
 require(parallel)
-library(slise)
 
 DATA_DIR <- "experiments/data"
 

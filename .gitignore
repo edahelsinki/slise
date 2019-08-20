@@ -34,8 +34,8 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 rsconnect/
-results/*
-!results/*.jpg
+experiments/results/*
+!experiments/results/*.jpg
 experiments/data/*
 !experiments/data/*.r
 !experiments/data/*.R
