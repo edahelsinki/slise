@@ -138,10 +138,21 @@ print.slise <- function(slise, ..., title = "SLISE") {
 
 summary.slise <- print.slise
 
+#' Explain an Object
+#'
+#' @param x the object to explain
+#' @param ... additional parameters
+#'
+#' @export
+#'
+#' @examples
+#' data <- matrix(rnorm(200), 100, 2)
+#' response <- rnorm(100)
+#' slise <- slise.explain(data, response, 10, epsilon=0.1)
+#' explain(slise)
 explain <- function(x, ...) {
     UseMethod("explain", x)
 }
-explain.default <- function(x) methods::explain(x)
 
 #' Show a SLISE explanation
 #'
@@ -159,7 +170,7 @@ explain.default <- function(x) methods::explain(x)
 #' data <- matrix(rnorm(200), 100, 2)
 #' response <- rnorm(100)
 #' slise <- slise.explain(data, response, 10, epsilon=0.1)
-#' show(slise)
+#' explain(slise)
 explain.slise <- function(slise, type = "bar", class_labels = c("Class 0", "Class 1"),
         title = "SLISE", real_value = NULL, probability = TRUE, ...) {
     if (is.null(type)) type <- ifelse(ncol(slise$X) > 20, "image", "bar")
