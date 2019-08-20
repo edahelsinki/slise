@@ -115,7 +115,7 @@ public:
 
 RCPP_EXPOSED_CLASS(DataContainer)
 
-RCPP_MODULE(mod) {
+RCPP_MODULE(slise_mod) {
     Rcpp::class_<DataContainer>("DataContainer")
         .constructor< Rcpp::NumericMatrix, Rcpp::NumericVector, double, double, double >()
         .constructor< Rcpp::NumericMatrix, Rcpp::NumericVector, double, double >()

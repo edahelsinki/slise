@@ -36,8 +36,8 @@ scale_robust <- function(x, center=TRUE, scale = TRUE, remove_constant = TRUE) {
     }
     else {
         if (remove_constant) {
-            mask <- colSums(if(center) x^2 else sweep(x, 2, colMeans(x), "-")^2) != 0
-            if (sum(mask) < length(mask)) {
+            mask <- colSums(if(center) x^2 else sweep(x, 2, colMeans(x, na.rm=TRUE), "-")^2) != 0
+            if (sum(mask, na.rm = TRUE) < length(mask)) {
                 meanx <- meanx[mask]
                 x <- x[, mask, drop = FALSE]
             }

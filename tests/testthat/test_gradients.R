@@ -1,4 +1,5 @@
-
+context("Tests for comparing R/C++ calculations")
+source("setup.R")
 
 test_that("Compare loss_smooth_grad to numerical gradient approximation", {
     if (require(numDeriv)) {
@@ -29,6 +30,8 @@ test_that("Compare loss_smooth_grad to numerical gradient approximation", {
                 tolerance = 1e-6
             )
         }
+    } else {
+        skip("Package numDeriv required for comparing the manual gradients to numerical gradients")
     }
 })
 

@@ -119,7 +119,7 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP _rcpp_module_boot_mod();
+RcppExport SEXP _rcpp_module_boot_slise_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_slise_sigmoidc", (DL_FUNC) &_slise_sigmoidc, 1},
@@ -131,7 +131,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_slise_lg_getgrad_c_dc", (DL_FUNC) &_slise_lg_getgrad_c_dc, 2},
     {"_slise_loss_smooth_c_ptr", (DL_FUNC) &_slise_loss_smooth_c_ptr, 0},
     {"_slise_loss_smooth_grad_c_ptr", (DL_FUNC) &_slise_loss_smooth_grad_c_ptr, 0},
-    {"_rcpp_module_boot_mod", (DL_FUNC) &_rcpp_module_boot_mod, 0},
+    {"_rcpp_module_boot_slise_mod", (DL_FUNC) &_rcpp_module_boot_slise_mod, 0},
     {NULL, NULL, 0}
 };
 

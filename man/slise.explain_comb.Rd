@@ -6,14 +6,16 @@
 Use SLISE for explaining predictions made by a black box.
 BUT with sparsity from a combinatorial search rather than Lasso!}
 \usage{
-slise.explain_comb(X, Y, x, ..., variables = 4)
+slise.explain_comb(X, Y, x, y = NULL, ..., variables = 4)
 }
 \arguments{
 \item{X}{matrix of independent variables}
 
 \item{Y}{vector of the dependent variable}
 
-\item{x}{the sample to be explained}
+\item{x}{the sample to be explained (or index if y is null)}
+
+\item{y}{the prediction to be explained}
 
 \item{...}{other parameters to slise.explain}
 
@@ -26,4 +28,10 @@ SLISE object
 SLISE Black Box Explainer
 Use SLISE for explaining predictions made by a black box.
 BUT with sparsity from a combinatorial search rather than Lasso!
+}
+\examples{
+X <- matrix(rnorm(400), 100, 4)
+Y <- rnorm(100)
+index <- 10
+model <- slise.explain_comb(X, Y, index, variables = 2)
 }

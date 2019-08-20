@@ -10,10 +10,15 @@
 \item{slise}{The slise object}
 
 \item{title}{(Optional) The title of the result}
+
+\item{...}{not used}
 }
 \description{
 Print the robust regression or explanation from slise
 }
 \examples{
-print(slise.fit(data, response, epsilon=0.1, variables=5))
+data <- matrix(rnorm(200), 100, 2)
+response <- rnorm(100)
+slise <- slise.fit(data, response, epsilon=0.1)
+print(slise)
 }

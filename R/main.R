@@ -21,13 +21,11 @@
 #' @export
 #'
 #' @examples
-#' # Assuming data is a data.frame with the first column containing the response
-#' # Further assuming newdata is a similar data.frame with the response missing
-#' X <- as.matrix(data[-1])
-#' Y <- data[[1]]
+#' X <- matrix(rnorm(200), 100, 2)
+#' Y <- rnorm(100)
 #' model <- slise.fit(X, Y)
-#' newdata$response <- predict(model, as.matrix(newdata))
-slise.fit <- function(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit = FALSE, intercept = TRUE, inits = 0, scale_y = TRUE) {
+#' prediction <- predict(model, X)
+slise.fit <- function(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit = FALSE, intercept = TRUE, scale_y = TRUE) {
     # Setup
     matprod_default <- options(matprod = "blas") # Use faster math
     X <- as.matrix(X)
@@ -63,6 +61,10 @@ slise.fit <- function(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit
 #' @return slise object (coefficients, subset, value, X, Y, lambda, epsilon, scaled, alpha)
 #' @export
 #'
+#' @examples
+#' X <- matrix(rnorm(200), 100, 2)
+#' Y <- rnorm(100)
+#' model <- slise.raw(X, Y)
 slise.raw <- function(X, Y, alpha = rep(0, ncol(X)), epsilon = 0.1, lambda = 0, beta = 0, ...) {
     # Setup
     matprod_default <- options(matprod = "blas") # Use faster math
@@ -97,13 +99,11 @@ slise.raw <- function(X, Y, alpha = rep(0, ncol(X)), epsilon = 0.1, lambda = 0, 
 #' @export
 #'
 #' @examples
-#' # Assuming data is a data.frame
-#' # Assuming prob is a vector with probabilities
-#' # Assuming index points to the descision you want to explain
-#' index <- 203
-#' expl <- slise.explain(as.matrix(data), prob, index, lambda=0.5, logit=TRUE)
-#' show(expl, "bar", class_labels=c("class 1", "class 2"))
-slise.explain <- function(X, Y, x, y = NULL, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit = FALSE, inits = 0, scale_y = TRUE) {
+#' X <- matrix(rnorm(200), 100, 2)
+#' Y <- rnorm(100)
+#' index <- 10
+#' model <- slise.explain(X, Y, index)
+slise.explain <- function(X, Y, x, y = NULL, epsilon = 0.1, lambda = 0, ..., scale = FALSE, logit = FALSE, scale_y = TRUE) {
     # Setup
     matprod_default <- options(matprod = "blas") # Use faster math
     X <- as.matrix(X)
@@ -138,6 +138,11 @@ slise.explain <- function(X, Y, x, y = NULL, epsilon = 0.1, lambda = 0, ..., sca
 #' @return SLISE object
 #' @export
 #'
+#' @examples
+#' X <- matrix(rnorm(800), 100, 8)
+#' Y <- rnorm(100)
+#' index <- 10
+#' model <- slise.explain_find(X, Y, index, variables = 4)
 slise.explain_find <- function(..., lambda = 5, variables = 4, iters = 10, treshold = 1e-4) {
     lower <- 0
     upper <- -1
@@ -172,23 +177,33 @@ slise.explain_find <- function(..., lambda = 5, variables = 4, iters = 10, tresh
 #'
 #' @param X matrix of independent variables
 #' @param Y vector of the dependent variable
-#' @param x the sample to be explained
+#' @param x the sample to be explained (or index if y is null)
+#' @param y the prediction to be explained
 #' @param ... other parameters to slise.explain
 #' @param variables the number of non-zero coefficients
 #'
 #' @return SLISE object
 #' @export
 #'
-slise.explain_comb <- function(X, Y, x, ..., variables = 4) {
+#' @examples
+#' X <- matrix(rnorm(400), 100, 4)
+#' Y <- rnorm(100)
+#' index <- 10
+#' model <- slise.explain_comb(X, Y, index, variables = 2)
+slise.explain_comb <- function(X, Y, x, y=NULL, ..., variables = 4) {
     len <- ncol(X)
     combs <- factorial(len) / factorial(variables) / factorial(len - variables)
     if (combs >= 30)
         warning(sprintf("The combinatorial search will take a long time (requires %d iterations)", combs))
+    if (all(is.null(y))) {
+        y <- Y[[x]]
+        x <- X[x, ]
+    }
     res <- utils::combn(1:len, variables, function(s) {
         X2 <- X
         for (i in (1:len)[-s])
             X2[, i] <- x[i]
-        slise.explain(X2, Y, x, ...)
+        slise.explain(X2, Y, x, y, ...)
     }, simplify = FALSE)
     expl <- res[[which.min(sapply(res, function(r) r$value))]]
     expl$X <- X
@@ -242,10 +257,17 @@ create_slise <- function(alpha, X, Y, epsilon, lambda = 0, data = NULL, ...) {
 #'
 #' @param object SLISE object
 #' @param newdata data matrix
+#' @param ... not used
 #'
 #' @return prediction vector
 #' @export
 #'
+#' @examples
+#' X <- matrix(rnorm(200), 100, 2)
+#' Y <- rnorm(100)
+#' index <- 10
+#' model <- slise.explain(X, Y, index)
+#' prediction <- predict(model, X)
 predict.slise <- function(object, newdata = NULL, ...) {
     if (is.null(newdata)) {
         newdata <- object$scaled$X

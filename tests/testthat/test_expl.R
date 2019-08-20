@@ -1,3 +1,5 @@
+context("Tests for plotting and printing")
+source("setup.R")
 
 .test_plot <- function(expr) {
     pdf(NULL)

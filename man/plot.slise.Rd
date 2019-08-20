@@ -19,10 +19,15 @@
 \item{other}{list of other slise objects to include in the plot}
 
 \item{threed}{plot in 3D with two columns}
+
+\item{...}{not used}
 }
 \description{
 Plot the robust regression or explanation from slise
 }
 \examples{
-plot(slise.fit(data, response, epsilon=0.1, variables=5))
+data <- matrix(rnorm(200), 100, 2)
+response <- rnorm(100)
+slise <- slise.fit(data, response, epsilon=0.1)
+plot(slise, 1:2, threed = TRUE)
 }

@@ -10,10 +10,19 @@
 \item{object}{SLISE object}
 
 \item{newdata}{data matrix}
+
+\item{...}{not used}
 }
 \value{
 prediction vector
 }
 \description{
 Predict with a SLISE
+}
+\examples{
+X <- matrix(rnorm(200), 100, 2)
+Y <- rnorm(100)
+index <- 10
+model <- slise.explain(X, Y, index)
+prediction <- predict(model, X)
 }

@@ -27,5 +27,8 @@
 Show a SLISE explanation
 }
 \examples{
-show(slise.fit(data, response, epsilon=0.1, variables=5), "image")
+data <- matrix(rnorm(200), 100, 2)
+response <- rnorm(100)
+slise <- slise.explain(data, response, 10, epsilon=0.1)
+show(slise)
 }

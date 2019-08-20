@@ -6,7 +6,7 @@
 Use SLISE for robust regression.}
 \usage{
 slise.fit(X, Y, epsilon = 0.1, lambda = 0, ..., scale = FALSE,
-  logit = FALSE, intercept = TRUE, inits = 0, scale_y = TRUE)
+  logit = FALSE, intercept = TRUE, scale_y = TRUE)
 }
 \arguments{
 \item{X}{matrix of independent variables}
@@ -43,10 +43,8 @@ SLISE Regression
 Use SLISE for robust regression.
 }
 \examples{
-# Assuming data is a data.frame with the first column containing the response
-# Further assuming newdata is a similar data.frame with the response missing
-X <- as.matrix(data[-1])
-Y <- data[[1]]
+X <- matrix(rnorm(200), 100, 2)
+Y <- rnorm(100)
 model <- slise.fit(X, Y)
-newdata$response <- predict(model, as.matrix(newdata))
+prediction <- predict(model, X)
 }

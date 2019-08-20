@@ -1,4 +1,5 @@
-# tests for the slise algorithm
+context("Tests for the slise algorithm")
+source("setup.R")
 
 test_that("Check SLISE", {
     for (i in c(rep(c(4, 8, 16), 2))) {

@@ -28,3 +28,9 @@ SLISE Black Box Explainer
 Use SLISE for explaining predictions made by a black box.
 BUT with a binary search for sparsity!
 }
+\examples{
+X <- matrix(rnorm(800), 100, 8)
+Y <- rnorm(100)
+index <- 10
+model <- slise.explain_find(X, Y, index, variables = 4)
+}

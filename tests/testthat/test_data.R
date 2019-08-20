@@ -1,5 +1,5 @@
-# tests for the data functions
-
+context("Tests for the data functions")
+source("setup.R")
 
 test_that("Check data_preprocess", {
     for (i in c(rep(c(4, 8), 2))) {

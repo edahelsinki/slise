@@ -6,7 +6,7 @@
 Use SLISE for explaining predictions made by a black box.}
 \usage{
 slise.explain(X, Y, x, y = NULL, epsilon = 0.1, lambda = 0, ...,
-  scale = FALSE, logit = FALSE, inits = 0, scale_y = TRUE)
+  scale = FALSE, logit = FALSE, scale_y = TRUE)
 }
 \arguments{
 \item{X}{matrix of independent variables}
@@ -45,10 +45,8 @@ SLISE Black Box Explainer
 Use SLISE for explaining predictions made by a black box.
 }
 \examples{
-# Assuming data is a data.frame
-# Assuming prob is a vector with probabilities
-# Assuming index points to the descision you want to explain
-index <- 203
-expl <- slise.explain(as.matrix(data), prob, index, lambda=0.5, logit=TRUE)
-show(expl, "bar", class_labels=c("class 1", "class 2"))
+X <- matrix(rnorm(200), 100, 2)
+Y <- rnorm(100)
+index <- 10
+model <- slise.explain(X, Y, index)
 }

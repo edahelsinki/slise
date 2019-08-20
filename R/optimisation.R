@@ -1,6 +1,5 @@
 # This script contains the optimisations for SLISE (Graduated Optimisation and OWL-QN)
 
-
 #' Smooth Loss
 #'
 #' @param alpha The vector to calculate loss for

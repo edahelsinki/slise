@@ -42,3 +42,8 @@ The raw interface for SLISE, initialisation and scaling
 This function essentially wraps graduated_optimisation
   and create_slise.
 }
+\examples{
+X <- matrix(rnorm(200), 100, 2)
+Y <- rnorm(100)
+model <- slise.raw(X, Y)
+}
