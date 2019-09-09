@@ -2,7 +2,7 @@
 
 R implementation of the SLISE algorithm. The SLISE algorithm can be used for
 both robust regression and to explain outcomes from black box models.
-For more details see the paper:
+For more details see the paper (to appear):
 >"Sparse Robust Regression for Explaining Classifiers" (2019)  
 > by A. Björklund, A. Henelius, E. Oikarinen, K. Kallonen, and K. Puolamäki  
 > in *Proceedings of the 22nd International Conference on Discovery Science*.
