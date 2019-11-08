@@ -49,3 +49,5 @@ tmp
 *.~
 todo.md
 .lintr
+!vignettes/paper.pdf
+!vignettes/presentation.pdf

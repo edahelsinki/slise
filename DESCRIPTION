@@ -10,7 +10,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: lbfgs, RcppArmadillo, ggplot2, stats, utils, methods, graphics, grDevices
-Suggests: scatterplot3d, grid, gridExtra, reshape2, crayon, wordcloud, testthat, stringr, numDeriv
+Suggests: scatterplot3d, grid, gridExtra, reshape2, crayon, wordcloud, testthat, stringr, numDeriv, R.rsp
 URL: https://github.com/edahelsinki/slise
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.1.1.9000
+VignetteBuilder: R.rsp
