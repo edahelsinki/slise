@@ -51,3 +51,4 @@ todo.md
 .lintr
 !vignettes/paper.pdf
 !vignettes/presentation.pdf
+!vignettes/poster.pdf
