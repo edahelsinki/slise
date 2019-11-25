@@ -5,9 +5,9 @@ both robust regression and to explain outcomes from black box models.
 For more details see [the paper](https://rdcu.be/bVbda), alternatively for a more informal
 overview see [the presentation](vignettes/presentation.pdf), or [the poster](vignettes/poster.pdf).
 
-> **Björklund A., Henelius A., Oikarinen E., Kallonen K., Puolamäki K.** (2019)  
+> **Björklund A., Henelius A., Oikarinen E., Kallonen K., Puolamäki K.**  
 > *Sparse Robust Regression for Explaining Classifiers.*  
-> 22nd International Conference on *Discovery Science* (DS 2019).  
+> Discovery Science (DS 2019).  
 > Lecture Notes in Computer Science, vol 11828, Springer.  
 > https://doi.org/10.1007/978-3-030-33778-0_27
 
