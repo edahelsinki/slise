@@ -1,4 +1,4 @@
-# SLISE
+# SLISE - Sparse Linear Subset Explanations
 
 R implementation of the SLISE algorithm. The SLISE algorithm can be used for
 both robust regression and to explain outcomes from black box models.
