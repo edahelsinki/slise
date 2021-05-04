@@ -12,6 +12,10 @@ overview see [the presentation](vignettes/presentation.pdf), or [the poster](vig
 > https://doi.org/10.1007/978-3-030-33778-0_27
 
 
+## Other Languages
+
+The official Python version can be found [here](https://github.com/edahelsinki/pyslise).
+
 
 ## Installation
 To install this R-package, proceed as follows.
@@ -28,7 +32,7 @@ Then install the `slise` package
 install_github("edahelsinki/slise")
 ```
 
-## Loading
+### Loading
 After installation, start R and load the package using
 ```R
 library(slise)
