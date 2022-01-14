@@ -1,32 +1,44 @@
 context("Tests for the data functions")
 source("setup.R")
 
-test_that("Check data_preprocess", {
+test_that("Check data preprocessing", {
     for (i in c(rep(c(4, 8), 2))) {
         data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
         for(i in 0:7) {
-            sc <- i%%2 > 0
-            ic <- i%%4 < 2
-            lg <- i >= 4
-            Y <- if(lg) sigmoid(data$Y) else data$Y
-            prep <- data_preprocess(data$X, Y, sc, ic, lg)
-            if (ic) {
-                expect_equal(prep$X[,-1], prep$scale_x(data$X))
-            } else {
-                expect_equal(prep$X, prep$scale_x(data$X))
-            }
-            expect_equal(prep$Y[1], prep$scale_y(Y[1]))
-            expect_equal(Y[1], prep$unscale_y(prep$Y[1]))
-            expect_equal(data$alpha, prep$unscale_alpha(prep$scale_alpha(data$alpha)))
+            expect_equal(
+                c(data$X),
+                c(remove_intercept_column(add_intercept_column(data$X)))
+            )
+            X <- data$X
+            X[, 3] <- 0
+            X2 <- remove_constant_columns(X)
+            expect_equal(c(X[, -3]), c(X2))
+            expect_equal(attr(X2, "constant_columns"), 3)
+            X3 <- scale_robust(X2)
+            expect_equal(
+                c(X2),
+                c(sweep(sweep(X3, 2, attr(X3, "scaled:scale"), `*`), 2, attr(X3, "scaled:center"), `+`))
+            )
+            expect_equal(X3, scale_same(data$X, X3))
+            expect_equal(c(scale_same(X[4, ], X3)), c(X3[4, ]))
+            expect_equal(c(scale_same(X[1:3, ], X3)), c(X3[1:3, ]))
+            Y2 <- scale_robust(data$Y)
+            ols1 <- .lm.fit(add_intercept_column(X3), Y2)$coefficients
+            ols2 <- .lm.fit(add_intercept_column(X2), data$Y)$coefficients
+            ols3 <- unscale_alpha(ols1, X3, Y2)
+            expect_equal(ols2, ols3)
         }
     }
 })
 
-test_that("Check data_local", {
+test_that("Check simple_pca", {
     for (i in c(rep(c(4, 8), 2))) {
         data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
-        local <- data_local(data$X, data$Y, sample(2:30, 1))
-        expect_equal(local$X[1,], local$scale_x(data$X[1,]))
-        expect_equal(local$Y[1], local$scale_y(data$Y[1]))
+        pca1 <- simple_pca(data$X, ceiling(i * 0.3))
+        pca2 <- prcomp(data$X, center = FALSE, scale = FALSE, rank = ceiling(i * 0.3))$rotation
+        expect_equal(c(pca1), c(pca2))
+        pca3 <- simple_pca(data$X, i)
+        X2 <- (data$X %*% pca3) %*% t(pca3)
+        expect_equal(X2, data$X)
     }
 })
