@@ -1,21 +1,46 @@
-citHeader("To cite SLISE in publications use:")
+citHeader("When citing SLISE in publications, cite one of the following:")
 
-citEntry(entry = "InProceedings",
-  title        = "Sparse Robust Regression for Explaining Classifiers",
-  author       = personList(
-                    as.person("Anton Björklund"),
-                    as.person("Andreas Henelius"),
-                    as.person("Emilia Oikarinen"),
-                    as.person("Kimmo Kallonen"),
-                    as.person("Kai Puolamäki")),
-                  
-  journal      = "Lecture Notes in Computer Science",
-  booktitle    = "Proceedings of the 22nd International Conference on Discovery Science",
-  year         = "2019",
+citEntry(
+  entry = "InProceedings",
+  title = "Sparse Robust Regression for Explaining Classifiers",
+  author = personList(
+    person("Anton", "Björklund"),
+    person("Andreas", "Henelius"),
+    person("Emilia", "Oikarinen"),
+    person("Kimmo", "Kallonen"),
+    person("Kai", "Puolamäki")
+  ),
+  journal = "Lecture Notes in Computer Science",
+  booktitle = "Proceedings of the 22nd International Conference on Discovery Science",
+  year = "2019",
+  doi = "10.1007/978-3-030-33778-0_27",
 
-  textVersion  = paste(
-    "Anton Björklund, Andreas Henelius, Emilia Oikarinen, Kimmo Kallonen, and Kai Puolamäki.",
+  textVersion = paste(
+    "Anton Björklund, Andreas Henelius, Emilia Oikarinen, Kimmo Kallonen, and Kai Puolamäki (2019).",
     "Sparse robust regression for explaining classifiers.",
-    "Proceedings of the 22nd International Conference on Discovery Science.",
-    "2019.")
+    "Proceedings of the 22nd International Conference on Discovery Science,",
+    "DOI: 10.1007/978-3-030-33778-0_27"
+  )
+)
+
+citEntry(
+  entry = "article",
+  title = "Robust Regression via Error Tolerance",
+  author = personList(
+    person("Anton", "Björklund"),
+    person("Andreas", "Henelius"),
+    person("Emilia", "Oikarinen"),
+    person("Kimmo", "Kallonen"),
+    person("Kai", "Puolamäki")
+  ),
+  journal = "Data Mining and Knowledge Discovery",
+  year = "2022",
+  doi = "10.1007/s10618-022-00819-2",
+
+  textVersion = paste(
+    "Anton Björklund, Andreas Henelius, Emilia Oikarinen, Kimmo Kallonen, and Kai Puolamäki (2022).",
+    "Robust Regression via Error Tolerance.",
+    "Data Mining and Knowledge Discovery,",
+    "DOI: 10.1007/s10618-022-00819-2"
+  )
 )

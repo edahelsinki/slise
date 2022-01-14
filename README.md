@@ -18,22 +18,21 @@ The official Python version can be found [here](https://github.com/edahelsinki/p
 
 
 ## Installation
-To install this R-package, proceed as follows.
 
-First install the `devtools`-package and load it in R:
+First install the `devtools`-package:
+
 ```R
 install.packages("devtools")
-library(devtools)
 ```
 
-Then install the `slise` package
+Then install the `slise` package:
 
 ```R
-install_github("edahelsinki/slise")
+devtools::install_github("edahelsinki/slise")
 ```
 
-### Loading
-After installation, start R and load the package using
+After installation, load the package using:
+
 ```R
 library(slise)
 ```
@@ -45,27 +44,42 @@ In order to use SLISE you need to have your data in a numerical matrix (or
 something that can be cast to a matrix), and the response as a numerical vector.
 Below is an example of SLISE being used for robust regression:
 
-```R
-source("experiments/utils.R")
-data <- data_pox("fpox", "all")
-slise <- slise.fit(X=data$X, Y=data$Y, epsilon=0.1, lambda=0)
-title <- sprintf("SLISE as Robust Regression   [Intercept = %.0f, Smallpox = %.2f]",
-    slise$coefficients[1], slise$coefficients[2])
-plot(slise, labels=c("Smallpox", "All Deaths"), title=title)
-```
-![Example Plot 1](experiments/results/ex1.jpg)
-
-
-SLISE can also be used to explain an opaque classifiers:
-
-```R
-source("experiments/utils.R")
+```{R}
+library(ggplot2)
+source("experiments/regression/utils.R")
 set.seed(42)
-emnist <- data_emnist(10000, classifier="digits2")
-slise <- slise.explain(emnist$X, emnist$Y, 3, epsilon = 0.1, lambda = 2, logit = TRUE)
-explain(slise, "image", class_labels=c("not 2", "is 2"), title="Using SLISE to explain a handwritten digit")
+
+x <- seq(-1, 1, length.out = 50)
+y <- -x + rnorm(50, 0, 0.15)
+x <- c(x, rep(seq(1.6, 1.8, 0.1), 2))
+y <- c(y, rep(c(1.8, 1.95), each = 3))
+
+ols <- lm(y ~ x)$coefficients
+slise <- slise.fit(x, y, epsilon = 0.5)
+
+plot(slise, title = "", partial = TRUE, size = 2) +
+    geom_abline(aes(intercept = ols[1], slope = ols[2], color = "OLS", linetype = "OLS"), size = 2) +
+    scale_color_manual(values = c("#1b9e77", SLISE_ORANGE), name = NULL) +
+    scale_linetype_manual(values = 2:1, name = NULL) +
+    theme(axis.title.y = element_text(angle = 0, vjust = 0.5), legend.key.size = grid::unit(2, "line")) +
+    guides(shape = FALSE, color = "legend", linetype = "legend")
 ```
-![Example Plot 1](experiments/results/ex2.jpg)
+![Robust Regression Example Plot](experiments/results/ex1.png)
+
+
+SLISE can also be used to explain predictions from black box models such as convolutional neural networks:
+
+```{R}
+devtools::load_all()
+source("experiments/regression/data.R")
+set.seed(42)
+
+emnist <- data_emnist(10000, digit=2, th = -1)
+slise <- slise.explain(emnist$X, emnist$Y, 0.5, emnist$X[17,], emnist$Y[17], 3, 6)
+
+plot(slise, "image", "", c("not 2", "is 2"), plots = 1)
+```
+![Explanation Example Plot](experiments/results/ex2.png)
 
 
 ## Dependencies
@@ -73,14 +87,14 @@ explain(slise, "image", class_labels=c("not 2", "is 2"), title="Using SLISE to e
 SLISE depends on the following R-packages:
 
  - Rcpp
+ - RcppArmadillo
  - lbfgs
- - ggplot2
 
 The following R-packages are optional, but needed for *some* of the built-in visualisations:
 
+ - ggplot2
  - grid
  - gridExtra
  - reshape2
- - scatterplot3d
  - crayon
  - wordcloud
