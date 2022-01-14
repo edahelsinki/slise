@@ -4,7 +4,7 @@
 \alias{grad_opt_debug}
 \title{Print debug statement for how the graduated optimisation is going}
 \usage{
-grad_opt_debug(alpha, X, Y, epsilon, lambda, beta, beta_max)
+grad_opt_debug(alpha, X, Y, epsilon, beta, lambda1, lambda2, weight, beta_max)
 }
 \arguments{
 \item{alpha}{linear model}
@@ -15,9 +15,13 @@ grad_opt_debug(alpha, X, Y, epsilon, lambda, beta, beta_max)
 
 \item{epsilon}{error tolerance}
 
-\item{lambda}{L1 weight}
-
 \item{beta}{current sigmoid steepness}
+
+\item{lambda1}{L1 coefficients}
+
+\item{lambda2}{L2 coefficients}
+
+\item{weight}{weight vector}
 
 \item{beta_max}{max sigmoid steepness}
 }

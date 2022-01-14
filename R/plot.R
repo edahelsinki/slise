@@ -200,7 +200,7 @@ plot.slise_2d <- function(slise,
         ggplot2::xlab(labels[1]) +
         ggplot2::ylab(labels[2]) +
         ggplot2::coord_cartesian(xlim = c(minx, maxx), ylim = c(miny, maxy)) +
-        ggplot2::geom_polygon(ggplot2::aes(x = px, y = py), fill = SLISE_WEAKPURPLE) +
+        ggplot2::geom_polygon(ggplot2::aes_string(x = "px", y = "py"), fill = SLISE_WEAKPURPLE) +
         ggplot2::geom_abline(ggplot2::aes(
             intercept = slise$coefficients[1],
             slope = slise$coefficients[2],
@@ -286,7 +286,7 @@ plot.slise_distribution <- function(slise,
     df$l <- factor(df$l, unique(df$l))
     gg1 <- ggplot2::ggplot(df) +
         ggplot2::facet_wrap(
-            ggplot2::vars(l),
+            "l",
             ncol = 1,
             scales = "free",
             strip.position = "right"
@@ -294,7 +294,7 @@ plot.slise_distribution <- function(slise,
         ggplot2::theme_bw() +
         ggplot2::xlab(NULL) +
         ggplot2::ylab(NULL) +
-        ggplot2::geom_density(ggplot2::aes(x, ..count.., fill = s, linetype = s), adjust = 0.5) +
+        ggplot2::geom_density(ggplot2::aes_string("x", "..count..", fill = "s", linetype = "s"), adjust = 0.5) +
         ggplot2::theme(
             legend.position = "bottom",
             strip.text.y = ggplot2::element_text(angle = 90)
@@ -313,7 +313,7 @@ plot.slise_distribution <- function(slise,
     if (!is.null(slise$x)) {
         gg1 <- gg1 +
             ggplot2::geom_vline(
-                ggplot2::aes(xintercept = p, color = "Explained")
+                ggplot2::aes_string(xintercept = "p", color = '"Explained"')
             ) +
             ggplot2::scale_color_manual(
                 limits = "Explained",
@@ -398,11 +398,11 @@ plot.slise_distribution <- function(slise,
         ggplot2::xlab(NULL) +
         ggplot2::ylab(NULL) +
         ggplot2::ggtitle("Linear Model") +
-        ggplot2::geom_col(ggplot2::aes(r, x, fill = f)) +
+        ggplot2::geom_col(ggplot2::aes_string("r", "x", fill = "f")) +
         ggplot2::coord_flip() +
         fill +
         ggplot2::scale_y_continuous(limits = c(-1, 1)) +
-        ggplot2::geom_text(ggplot2::aes(r, x, label = lab), hjust = "inward") +
+        ggplot2::geom_text(ggplot2::aes_string("r", "x", label = "lab"), hjust = "inward") +
         ggplot2::theme(
             panel.grid.minor.x = ggplot2::element_blank(),
             legend.position = "bottom",
@@ -473,7 +473,7 @@ plot.slise_prediction <- function(slise,
         ggplot2::theme_bw() +
         ggplot2::xlab(labels[1]) +
         ggplot2::ylab(labels[2]) +
-        ggplot2::geom_density(ggplot2::aes(x, ..count.., fill = s, linetype = s)) +
+        ggplot2::geom_density(ggplot2::aes_string("x", "..count..", fill = "s", linetype = "s")) +
         ggplot2::theme(
             legend.position = "right",
             strip.text.y = ggplot2::element_text(angle = 0)
@@ -496,7 +496,7 @@ plot.slise_prediction <- function(slise,
     if (!is.null(slise$x)) {
         gg1 <- gg1 +
             ggplot2::geom_vline(
-                ggplot2::aes(xintercept = p, color = "Explained\nPrediction")
+                ggplot2::aes_string(xintercept = "p", color = '"Explained\nPrediction"')
             ) +
             ggplot2::scale_color_manual(
                 limits = "Explained\nPrediction",
@@ -578,12 +578,12 @@ plot.slise_bar <- function(slise,
     }
     gg1 <- ggplot2::ggplot(df) +
         ggplot2::geom_segment(
-            ggplot2::aes(
-                x = low,
-                xend = high,
-                y = variable,
-                yend = variable,
-                col = col
+            ggplot2::aes_string(
+                x = "low",
+                xend = "high",
+                y = "variable",
+                yend = "variable",
+                col = "col"
             ),
             size = df$height
         ) +
@@ -596,7 +596,7 @@ plot.slise_bar <- function(slise,
         ggplot2::ggtitle("Dataset")
     if (!is.null(slise$x)) {
         gg1 <- gg1 + ggplot2::geom_point(
-            ggplot2::aes(point, variable, col = "Explained"),
+            ggplot2::aes_string("point", "variable", col = '"Explained"'),
             size = size * 0.5
         )
     }
@@ -614,9 +614,10 @@ plot.slise_bar <- function(slise,
             names = variable_names
         )
     }
+    df$labels <- labels[(df$alpha > 0) + 1]
     gg2 <- ggplot2::ggplot(df) +
         ggplot2::geom_col(
-            ggplot2::aes(names, alpha, fill = labels[(alpha > 0) + 1])
+            ggplot2::aes_string("names", "alpha", fill = "labels")
         ) +
         ggplot2::coord_flip() +
         ggplot2::theme_bw() +
@@ -642,9 +643,10 @@ plot.slise_bar <- function(slise,
                 names = variable_names
             )
         }
+        df$labels <- labels[(df$alpha > 0) + 1]
         gg3 <- ggplot2::ggplot(df) +
             ggplot2::geom_col(
-                ggplot2::aes(names, alpha, fill = labels[(alpha > 0) + 1])
+                ggplot2::aes_string("names", "alpha", fill = "labels")
             ) +
             ggplot2::coord_flip() +
             ggplot2::theme_bw() +
@@ -818,9 +820,9 @@ plot_mnist <- function(image,
     gg <- ggplot2::ggplot(reshape2::melt(image)) +
         ggplot2::geom_raster(
             if (length(shape) == 3) {
-                ggplot2::aes(Var3, Var2, fill = value)
+                ggplot2::aes_string("Var3", "Var2", fill = "value")
             } else {
-                ggplot2::aes(Var2, Var1, fill = value)
+                ggplot2::aes_string("Var2", "Var1", fill = "value")
             },
             interpolate = FALSE
         ) +
@@ -858,9 +860,9 @@ plot_mnist <- function(image,
         stopifnot(dim(contour) == dim(image))
         gg <- gg + ggplot2::stat_contour(
             if (length(shape) == 3) {
-                ggplot2::aes(Var3, Var2, z = value)
+                ggplot2::aes_string("Var3", "Var2", z = "value")
             } else {
-                ggplot2::aes(Var2, Var1, z = value)
+                ggplot2::aes_string("Var2", "Var1", z = "value")
             },
             data = reshape2::melt(contour),
             col = "black",

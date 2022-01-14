@@ -2,10 +2,22 @@
 % Please edit documentation in R/optimisation.R
 \name{owlqn_r}
 \alias{owlqn_r}
-\title{OWL-QN for optimising loss_smooth (R implementation)}
+\title{OWL-QN for optimising loss_smooth
+R implementation}
 \usage{
-owlqn_r(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3,
-  max_iterations = 250, ...)
+owlqn_r(
+  alpha,
+  X,
+  Y,
+  epsilon,
+  beta,
+  lambda1 = 0,
+  lambda2 = 0,
+  weight = NULL,
+  max_iterations = 300,
+  ...,
+  invisible = TRUE
+)
 }
 \arguments{
 \item{alpha}{linear model to optimise}
@@ -16,17 +28,24 @@ owlqn_r(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3,
 
 \item{epsilon}{error tolerance}
 
-\item{lambda}{L1 coefficient}
-
 \item{beta}{sigmoid steepness}
 
-\item{max_iterations}{number of OWL-QN iterations}
+\item{lambda1}{L1 coefficient (default: 0)}
+
+\item{lambda2}{L1 coefficient(default: 0)}
+
+\item{weight}{weight vector (default: NULL)}
+
+\item{max_iterations}{number of OWL-QN iterations (default: 300)}
 
 \item{...}{other parameters to OWL-QN}
+
+\item{invisible}{no terminal output (default: TRUE)}
 }
 \value{
 lbfgs object
 }
 \description{
-OWL-QN for optimising loss_smooth (R implementation)
+OWL-QN for optimising loss_smooth
+R implementation
 }

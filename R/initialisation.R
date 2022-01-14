@@ -12,6 +12,7 @@
 #' @return coefficient vector
 #'
 #' @importFrom stats lm.wfit
+#' @importFrom stats .lm.fit
 #'
 fast_ols <- function(X, Y, weight = NULL, lambda = 0, max_iterations = 300) {
     # If the number of dimensions is very large, don't use the exact OLS solver

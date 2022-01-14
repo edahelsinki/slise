@@ -7,7 +7,7 @@
 dlog_sigmoid(x)
 }
 \arguments{
-\item{x}{vector}
+\item{x}{vector of real values}
 }
 \value{
 Derivative of log(sigmoid(x)).

@@ -4,21 +4,23 @@
 \alias{print.slise}
 \title{Print the robust regression or explanation from slise}
 \usage{
-\method{print}{slise}(slise, ..., title = "SLISE")
+\method{print}{slise}(x, num_vars = 10, ...)
 }
 \arguments{
-\item{slise}{The slise object}
+\item{x}{The slise object}
 
-\item{...}{not used}
+\item{num_vars}{Minimum number of variables to show without filtering (default: 10)}
 
-\item{title}{(Optional) The title of the result}
+\item{...}{Ignored additional parameters}
+}
+\value{
+invisible(x)
 }
 \description{
 Print the robust regression or explanation from slise
 }
 \examples{
-data <- matrix(rnorm(200), 100, 2)
-response <- rnorm(100)
-slise <- slise.fit(data, response, epsilon=0.1)
-print(slise)
+X <- matrix(rnorm(30), 15, 2)
+Y <- runif(15, 0, 1)
+print(slise.fit(X, Y, epsilon = 0.1))
 }

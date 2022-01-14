@@ -5,12 +5,12 @@
 \title{Sparsity
 Count the non-zero coefficients}
 \usage{
-sparsity(x, treshold = 0)
+sparsity(x, treshold = .Machine$double.eps)
 }
 \arguments{
 \item{x}{vector}
 
-\item{treshold}{treshold for approximately zero (0)}
+\item{treshold}{threshold for zero}
 }
 \value{
 number of non-zero values

@@ -14,6 +14,7 @@ __pycache__
 *Rproj
 r/*.html
 *.RData
+*.Rcheck
 *.aux
 *.log
 *.fls
@@ -47,6 +48,7 @@ experiments/data/*
 tmp
 *.html
 *.zip
+*.tar.gz
 
 *~
 *.~

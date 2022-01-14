@@ -7,7 +7,7 @@
 dsigmoid(x)
 }
 \arguments{
-\item{x}{vector}
+\item{x}{vector of real values}
 }
 \value{
 Derivative of sigmoid(x).
