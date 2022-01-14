@@ -30,6 +30,8 @@ install.packages(c(
 # devtools::install_git("https://github.com/shaobo-li/MTE.git")
 ```
 
+Furthermore, some experiments require `scikit-learn` (for RANSAC) accessed through `reticulate`.
+
 ## Datasets
 
 Most datasets are downloaded when used, run `experiments/regression/data.R` to download all datasets in advance.
