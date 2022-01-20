@@ -161,9 +161,6 @@ slise.explain <- function(X,
     Y_orig <- Y
     if (is.null(y)) {
         # x is an index
-        if (length(weight) > 1) {
-            weight[x] <- 0
-        }
         y <- Y[[x]]
         x <- X[x, ]
     } else if (logit) {
