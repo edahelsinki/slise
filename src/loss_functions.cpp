@@ -221,9 +221,9 @@ double loss_smooth_c(const arma::vec &alpha,
                      const arma::vec &response,
                      const double &epsilon,
                      const double &beta,
-                     const double &lambda1 = 0,
-                     const double &lambda2 = 0,
-                     const arma::vec &weight = 0)
+                     const double &lambda1,
+                     const double &lambda2,
+                     const arma::vec &weight)
 {
 
     // calculate loss
@@ -232,16 +232,11 @@ double loss_smooth_c(const arma::vec &alpha,
     arma::vec subset = i_sigmoidc(beta * (epsilon2 - distances));
 
     double loss;
-    if (weight.size() > 1)
+    if (weight.size() > 0)
     {
         double length = arma::accu(weight);
         arma::vec residuals = pmin(distances - (epsilon2 * length), 0);
         loss = arma::accu(subset % residuals % weight) / length;
-    }
-    else if (weight.size() > 0 && weight[0] != 0)
-    {
-        arma::vec residuals = pmin(distances - (epsilon2 * weight[0] * response.size()), 0);
-        loss = arma::accu(subset % residuals) / distances.size(); // * weight[0] / * weight[0]
     }
     else
     {
@@ -297,17 +292,15 @@ Rcpp::NumericVector loss_smooth_grad_c(const arma::vec &alpha,
                                        const arma::vec &response,
                                        const double &epsilon,
                                        const double &beta,
-                                       const double &lambda1 = 0,
-                                       const double &lambda2 = 0,
-                                       const arma::vec &weight = 0)
+                                       const double &lambda1,
+                                       const double &lambda2,
+                                       const arma::vec &weight)
 {
 
     double epsilon2 = pow(epsilon, 2);
     double length;
-    if (weight.size() > 1)
+    if (weight.size() > 0)
         length = arma::accu(weight);
-    else if (weight.size() == 1 && weight[0] != 0)
-        length = weight[0] * data.n_rows;
     else
         length = data.n_rows;
     arma::vec distances = data * alpha - response;
@@ -320,10 +313,8 @@ Rcpp::NumericVector loss_smooth_grad_c(const arma::vec &alpha,
     distances = pmin_other(distances, f, 0); //phi(x) ~ pmin(x, 0)
 
     arma::vec grad;
-    if (weight.size() > 1)
+    if (weight.size() > 0)
         grad = (data.each_col() % (distances % weight)).t() * ((s * k1) + (f % k2));
-    else if (weight.size() > 0 && weight[0] != 0)
-        grad = (data.each_col() % distances).t() * ((s * k1) + (f % k2)) * weight[0];
     else
         grad = (data.each_col() % distances).t() * ((s * k1) + (f % k2));
 
@@ -369,10 +360,8 @@ Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr)
     // calculate loss
     double epsilon2 = pow(dc->epsilon, 2);
     double length;
-    if (dc->weight.size() > 1)
+    if (dc->weight.size() > 0)
         length = dc->ws;
-    else if (dc->weight.size() == 1 && dc->weight[0] != 0)
-        length = dc->weight[0] * dc->data.n_rows;
     else
         length = dc->data.n_rows;
 
@@ -382,10 +371,8 @@ Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr)
     arma::colvec subset = i_sigmoidc(dc->beta * (epsilon2 - distances2));
     arma::colvec residuals = distances2 - epsilon2 * length;
 
-    if (dc->weight.size() > 1)
+    if (dc->weight.size() > 0)
         dc->loss = arma::accu(subset % pmin(residuals, 0) % dc->weight) / length;
-    else if (dc->weight.size() > 0 && dc->weight[0] != 0)
-        dc->loss = arma::accu(subset % pmin(residuals, 0)) / dc->data.n_rows; // * weight / weight
     else
         dc->loss = arma::accu(subset % pmin(residuals, 0)) / length;
 
@@ -394,10 +381,8 @@ Rcpp::NumericVector lg_combined_smooth_c_dc(SEXP xs, SEXP dcptr)
     arma::colvec k2 = (-2.0 * dc->beta / length) * (subset - pow(subset, 2));
     distances = pmin_other(distances, residuals, 0);
 
-    if (dc->weight.size() > 1)
+    if (dc->weight.size() > 0)
         dc->grad = (dc->data.each_col() % (distances % dc->weight)).t() * ((subset * k1) + (residuals % k2));
-    else if (dc->weight.size() > 0 && dc->weight[0] != 0)
-        dc->grad = (dc->data.each_col() % distances).t() * ((subset * k1) + (residuals % k2)) * dc->weight[0];
     else
         dc->grad = (dc->data.each_col() % distances).t() * ((subset * k1) + (residuals % k2));
 

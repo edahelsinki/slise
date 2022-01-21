@@ -40,12 +40,12 @@ test_that("Compare loss_smooth and loss_smooth_grad to cpp", {
         # fn
         expect_equal(
             c(loss_smooth(alpha, X = data$X, Y = data$Y, epsilon = 0.1, beta = 3, lambda1 = 0)),
-            c(loss_smooth_c(alpha, data = data$X, response = data$Y, epsilon = 0.1, beta = 3)),
+            c(loss_smooth_c(alpha, data = data$X, response = data$Y, epsilon = 0.1, beta = 3, lambda1 = 0, lambda2 = 0, weight =  numeric(0))),
             tolerance = 1e-4
         )
         expect_equal(
             c(loss_smooth_grad(alpha, X = data$X, Y = data$Y, epsilon = 0.1, beta = 3, lambda1 = 0)),
-            c(loss_smooth_grad_c(alpha, data = data$X, response = data$Y, epsilon = 0.1, beta = 3)),
+            c(loss_smooth_grad_c(alpha, data = data$X, response = data$Y, epsilon = 0.1, beta = 3, lambda1 = 0, lambda2 = 0, weight =  numeric(0))),
             tolerance = 1e-4
         )
         # dc
@@ -76,12 +76,12 @@ test_that("Compare loss_smooth and loss_smooth_grad to cpp", {
         # fn
         expect_equal(
             c(loss_smooth(alpha, X = data$X, Y = data$Y, epsilon = 0.03, beta = 3, lambda1 = 0)),
-            c(loss_smooth_c(alpha, data = data$X, response = data$Y, epsilon = 0.03, beta = 3)),
+            c(loss_smooth_c(alpha, data = data$X, response = data$Y, epsilon = 0.03, beta = 3, lambda1 = 0, lambda2 = 0, weight =  numeric(0))),
             tolerance = 1e-4
         )
         expect_equal(
             c(loss_smooth_grad(alpha, X = data$X, Y = data$Y, epsilon = 0.03, beta = 3, lambda1 = 0)),
-            c(loss_smooth_grad_c(alpha, data = data$X, response = data$Y, epsilon = 0.03, beta = 3)),
+            c(loss_smooth_grad_c(alpha, data = data$X, response = data$Y, epsilon = 0.03, beta = 3, lambda1 = 0, lambda2 = 0, weight =  numeric(0))),
             tolerance = 1e-4
         )
         # dc

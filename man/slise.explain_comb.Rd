@@ -24,7 +24,7 @@ slise.explain_comb(X, Y, epsilon, x, y = NULL, ..., variables = 4)
   \describe{
     \item{\code{lambda1}}{L1 regularisation coefficient (default: 0)}
     \item{\code{lambda2}}{L2 regularisation coefficient (default: 0)}
-    \item{\code{weight}}{optional weight vector, negative values will be truncated to zero (default: NULL)}
+    \item{\code{weight}}{Optional weight vector (default: NULL)}
     \item{\code{normalise}}{Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)}
     \item{\code{logit}}{Logit transform Y from probabilities to real values (default: FALSE)}
     \item{\code{initialisation}}{function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)}

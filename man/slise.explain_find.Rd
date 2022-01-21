@@ -18,13 +18,13 @@ slise.explain_find(
 \item{...}{
   Arguments passed on to \code{\link[=slise.explain]{slise.explain}}
   \describe{
-    \item{\code{X}}{matrix of independent variables}
-    \item{\code{Y}}{vector of the dependent variable}
-    \item{\code{epsilon}}{error tolerance}
-    \item{\code{x}}{the sample to be explained (or index if y is null)}
-    \item{\code{y}}{the prediction to be explained (default: NULL)}
+    \item{\code{X}}{Matrix of independent variables}
+    \item{\code{Y}}{Vector of the dependent variable}
+    \item{\code{epsilon}}{Error tolerance}
+    \item{\code{x}}{The sample to be explained (or index if y is null)}
+    \item{\code{y}}{The prediction to be explained (default: NULL)}
     \item{\code{lambda2}}{L2 regularisation coefficient (default: 0)}
-    \item{\code{weight}}{optional weight vector, negative values will be truncated to zero (default: NULL)}
+    \item{\code{weight}}{Optional weight vector (default: NULL)}
     \item{\code{normalise}}{Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)}
     \item{\code{logit}}{Logit transform Y from probabilities to real values (default: FALSE)}
     \item{\code{initialisation}}{function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)}

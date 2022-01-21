@@ -19,31 +19,31 @@ slise.fit(
 )
 }
 \arguments{
-\item{X}{matrix of independent variables}
+\item{X}{Matrix of independent variables}
 
-\item{Y}{vector of the response variable}
+\item{Y}{Vector of the response variable}
 
-\item{epsilon}{error tolerance}
+\item{epsilon}{Error tolerance}
 
 \item{lambda1}{L1 regularisation coefficient (default: 0)}
 
 \item{lambda2}{L2 regularisation coefficient (default: 0)}
 
-\item{weight}{optional weight vector, negative values will be truncated to zero (default: NULL)}
+\item{weight}{Optional weight vector (default: NULL)}
 
 \item{intercept}{Should an intercept be added (default: TRUE)}
 
 \item{normalise}{Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)}
 
-\item{initialisation}{function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)}
+\item{initialisation}{Function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)}
 
 \item{...}{
   Arguments passed on to \code{\link[=graduated_optimisation]{graduated_optimisation}}, \code{\link[=slise_initialisation_candidates]{slise_initialisation_candidates}}
   \describe{
-    \item{\code{beta_max}}{stopping sigmoid steepness (default: 20 / epsilon^2)}
-    \item{\code{max_approx}}{approximation ratio when selecting the next beta (default: 1.15)}
-    \item{\code{max_iterations}}{maximum number of OWL-QN iterations (default: 300)}
-    \item{\code{debug}}{should debug statement be printed each iteration (default: FALSE)}
+    \item{\code{beta_max}}{Stopping sigmoid steepness (default: 20 / epsilon^2)}
+    \item{\code{max_approx}}{Approximation ratio when selecting the next beta (default: 1.15)}
+    \item{\code{max_iterations}}{Maximum number of OWL-QN iterations (default: 300)}
+    \item{\code{debug}}{Should debug statement be printed each iteration (default: FALSE)}
     \item{\code{num_init}}{the number of initial subsets to generate (default: 500)}
     \item{\code{beta_max_init}}{the maximum sigmoid steepness in the initialisation}
     \item{\code{pca_treshold}}{the maximum number of columns without using PCA (default: 10)}

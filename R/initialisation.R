@@ -18,7 +18,7 @@ fast_ols <- function(X, Y, weight = NULL, lambda = 0, max_iterations = 300) {
     # If the number of dimensions is very large, don't use the exact OLS solver
     if (lambda > 0 || ncol(X) > max_iterations * 20) {
         # 20 comes from the number of linesearch steps in lbfgs
-        if (length(weight) > 1) {
+        if (is.null(weight)) {
             loss <- function(alpha) sum((X %*% alpha - Y)^2) / 2
             grad <- function(alpha) colSums(c(X %*% alpha - Y) * X)
         } else {
@@ -33,10 +33,10 @@ fast_ols <- function(X, Y, weight = NULL, lambda = 0, max_iterations = 300) {
             max_iterations = max_iterations,
             orthantwise_c = lambda
         )$par
-    } else if (length(weight) > 1) {
-        lm.wfit(X, Y, weight)$coefficients
-    } else {
+    } else if (is.null(weight)) {
         .lm.fit(X, Y)$coefficients
+    } else {
+        lm.wfit(X, Y, weight)$coefficients
     }
 }
 

@@ -22,31 +22,31 @@ graduated_optimisation(
 )
 }
 \arguments{
-\item{alpha}{initial linear model (if NULL then OLS)}
+\item{alpha}{Initial linear model (if NULL then OLS)}
 
-\item{X}{data matrix}
+\item{X}{Data matrix}
 
-\item{Y}{response vector}
+\item{Y}{Response vector}
 
-\item{epsilon}{error tolerance}
+\item{epsilon}{Error tolerance}
 
-\item{beta}{starting sigmoid steepness (default: 0 == convex problem)}
+\item{beta}{Starting sigmoid steepness (default: 0 == convex problem)}
 
 \item{lambda1}{L1 coefficient (default: 0)}
 
 \item{lambda2}{L1 coefficient (default: 0)}
 
-\item{weight}{weight vector (default: NULL == no weights)}
+\item{weight}{Weight vector (default: NULL == no weights)}
 
-\item{beta_max}{stopping sigmoid steepness (default: 20 / epsilon^2)}
+\item{beta_max}{Stopping sigmoid steepness (default: 20 / epsilon^2)}
 
-\item{max_approx}{approximation ratio when selecting the next beta (default: 1.15)}
+\item{max_approx}{Approximation ratio when selecting the next beta (default: 1.15)}
 
-\item{max_iterations}{maximum number of OWL-QN iterations (default: 300)}
+\item{max_iterations}{Maximum number of OWL-QN iterations (default: 300)}
 
-\item{beta_min_increase}{minimum amount to increase beta (default: beta_max * 0.0005)}
+\item{beta_min_increase}{Minimum amount to increase beta (default: beta_max * 0.0005)}
 
-\item{debug}{should debug statement be printed each iteration (default: FALSE)}
+\item{debug}{Should debug statement be printed each iteration (default: FALSE)}
 
 \item{...}{Additional parameters to OWL-QN}
 }

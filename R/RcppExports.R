@@ -9,7 +9,7 @@ log_sigmoidc <- function(x) {
     .Call('_slise_log_sigmoidc', PACKAGE = 'slise', x)
 }
 
-loss_smooth_c <- function(alpha, data, response, epsilon, beta, lambda1 = 0, lambda2 = 0, weight = 0L) {
+loss_smooth_c <- function(alpha, data, response, epsilon, beta, lambda1, lambda2, weight) {
     .Call('_slise_loss_smooth_c', PACKAGE = 'slise', alpha, data, response, epsilon, beta, lambda1, lambda2, weight)
 }
 
@@ -17,7 +17,7 @@ loss_smooth_c_dc <- function(xs, dcptr) {
     .Call('_slise_loss_smooth_c_dc', PACKAGE = 'slise', xs, dcptr)
 }
 
-loss_smooth_grad_c <- function(alpha, data, response, epsilon, beta, lambda1 = 0, lambda2 = 0, weight = 0L) {
+loss_smooth_grad_c <- function(alpha, data, response, epsilon, beta, lambda1, lambda2, weight) {
     .Call('_slise_loss_smooth_grad_c', PACKAGE = 'slise', alpha, data, response, epsilon, beta, lambda1, lambda2, weight)
 }
 

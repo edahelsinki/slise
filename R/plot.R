@@ -376,7 +376,7 @@ plot.slise_distribution <- function(slise,
         }
     }
     df$r <- factor(df$r, c("Normalised\nImpact", "Prediction\nImpact", "Normalised\nModel", "Coefficients"))
-    df$l <- factor(df$l, df$l[1:length(ord1)])
+    df$l <- factor(df$l, df$l[seq_along(ord1)])
     if (nrow(df) <= length(ord1)) {
         df$f <- labels[(df$x > 0) + 1]
         fill <- ggplot2::scale_fill_manual(

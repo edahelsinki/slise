@@ -18,16 +18,13 @@ loss_smooth <- function(alpha, X, Y, epsilon, beta, lambda1 = 0, lambda2 = 0, we
     epsilon <- epsilon^2
     distances <- c(X %*% alpha - Y)^2
     subsize <- sigmoidc(beta * (epsilon - distances))
-    if (length(weight) > 1) {
+    if (is.null(weight)) {
+        loss <- pmin(0, distances - epsilon * length(Y)) # phi(x) ~ pmin(0, x)
+        loss <- sum(subsize * loss) / length(Y)
+    } else {
         len <- sum(weight)
         loss <- pmin(0, distances - epsilon * len)
         loss <- sum(subsize * loss * weight) / len
-    } else if (length(weight) == 1 && weight != 0) {
-        loss <- pmin(0, distances - epsilon * length(Y) * weight)
-        loss <- sum(subsize * loss) / length(Y) # * weight / weight
-    } else {
-        loss <- pmin(0, distances - epsilon * length(Y)) # phi(x) ~ pmin(0, x)
-        loss <- sum(subsize * loss) / length(Y)
     }
     if (lambda1 > 0) {
         loss <- loss + lambda1 * sum(abs(alpha))
@@ -53,18 +50,13 @@ loss_smooth <- function(alpha, X, Y, epsilon, beta, lambda1 = 0, lambda2 = 0, we
 #'
 loss_smooth_res <- function(alpha, residuals2, epsilon2, beta, lambda1 = 0, lambda2 = 0, weight = NULL) {
     subsize <- sigmoidc(beta * (epsilon2 - residuals2))
-    if (length(weight) > 1) {
+    if (is.null(weight)) {
+        loss <- pmin(0, residuals2 - epsilon2 * length(residuals2)) # phi(x) ~ pmin(0, x)
+        loss <- sum(subsize * loss) / length(residuals2)
+    } else {
         len <- sum(weight)
         loss <- pmin(0, residuals2 - epsilon2 * len)
         loss <- sum(subsize * loss * weight) / len
-    }
-    else if (length(weight) == 1 && weight != 0) {
-        loss <- pmin(0, residuals2 - epsilon2 * length(residuals2) * weight)
-        loss <- sum(subsize * loss) / length(residuals2) # * weight / weight
-    }
-    else {
-        loss <- pmin(0, residuals2 - epsilon2 * length(residuals2)) # phi(x) ~ pmin(0, x)
-        loss <- sum(subsize * loss) / length(residuals2)
     }
     if (lambda1 > 0) {
         loss <- loss + lambda1 * sum(abs(alpha))
@@ -93,12 +85,10 @@ loss_smooth_grad <- function(alpha, X, Y, epsilon, beta, lambda1 = 0, lambda2 = 
     epsilon <- epsilon^2
     distances <- c(X %*% alpha - Y)
     distances2 <- distances^2
-    if (length(weight) > 1) {
-        len <- sum(weight)
-    } else if (length(weight) == 1 && weight != 0) {
-        len <- weight * length(Y)
+    len <- if (is.null(weight)) {
+        length(Y)
     } else {
-        len <- length(Y)
+        sum(weight)
     }
 
     f <- distances2 - epsilon * len
@@ -142,14 +132,11 @@ loss_sharp <- function(alpha, X, Y, epsilon, lambda1 = 0, lambda2 = 0, weight = 
     epsilon <- epsilon^2
     distances <- (X %*% alpha - Y)^2
     subsize <- distances <= epsilon
-    if (length(weight) > 1) {
+    if (is.null(weight)) {
+        loss <- sum(subsize * (distances - epsilon * length(Y))) / length(Y)
+    } else {
         len <- sum(weight)
         loss <- sum(subsize * (distances - epsilon * len) * weight) / len
-    } else if (length(weight) == 1 && weight != 0) {
-        dist <- (distances - epsilon * length(Y) * weight)
-        loss <- sum(subsize * dist) / length(Y) # * weight / weight
-    } else {
-        loss <- sum(subsize * (distances - epsilon * length(Y))) / length(Y)
     }
     if (lambda1 > 0) {
         loss <- loss + lambda1 * sum(abs(alpha))
@@ -174,15 +161,12 @@ loss_sharp <- function(alpha, X, Y, epsilon, lambda1 = 0, lambda2 = 0, weight = 
 #'
 loss_sharp_res <- function(alpha, residuals2, epsilon2, lambda1 = 0, lambda2 = 0, weight = NULL) {
     subsize <- residuals2 <= epsilon2
-    if (length(weight) > 1) {
-        len <- sum(weight)
-        loss <- sum(subsize * (residuals2 - epsilon2 * len) * weight) / len
-    } else if (length(weight) == 1 && weight != 0) {
-        dist <- (residuals2 - epsilon2 * length(residuals2) * weight)
-        loss <- sum(subsize * dist) / length(residuals2) # * weight / weight
-    } else {
+    if (is.null(weight)) {
         len <- length(residuals2)
         loss <- sum(subsize * (residuals2 - epsilon2 * len)) / len
+    } else {
+        len <- sum(weight)
+        loss <- sum(subsize * (residuals2 - epsilon2 * len) * weight) / len
     }
     if (lambda1 > 0) {
         loss <- loss + lambda1 * sum(abs(alpha))
@@ -274,12 +258,10 @@ log_approximation_ratio <- function(residuals2, epsilon2, beta1, beta2, weight =
         return(0)
     }
     # phi = -pmin(0, r^2/n-e^2)
-    if (length(weight) > 1) {
-        phi <- pmax(0, epsilon2 - residuals2 / sum(weight)) * weight
-    } else if (length(weight) == 1 && weight != 0) {
-        phi <- pmax(0, epsilon2 - residuals2 / (weight * length(residuals2))) * weight
+    phi <- if (is.null(weight)) {
+        pmax(0, epsilon2 - residuals2 / length(residuals2))
     } else {
-        phi <- pmax(0, epsilon2 - residuals2 / length(residuals2))
+        pmax(0, epsilon2 - residuals2 / sum(weight)) * weight
     }
     ## log(f(r, beta)), assuming squared r, the phi is calculated separately
     lf <- function(r, beta) log_sigmoidc(beta * (epsilon2 - r))
@@ -311,16 +293,16 @@ log_approximation_ratio <- function(residuals2, epsilon2, beta1, beta2, weight =
 #' @return *epsilon
 #'
 matching_epsilon <- function(residuals2, epsilon2, beta, weight = NULL) {
-    if (length(weight) > 1) {
+    if (is.null(weight)) {
+        residuals2 <- sort(residuals2)
+        loss <- sigmoid(beta * (epsilon2 - residuals2))
+        i <- which.max(seq_along(residuals2) * loss)
+    } else {
         ord <- order(residuals2)
         residuals2 <- residuals2[ord]
         weight <- weight[ord]
         loss <- sigmoid(beta * (epsilon2 - residuals2))
         i <- which.max(cumsum(weight) * loss)
-    } else {
-        residuals2 <- sort(residuals2)
-        loss <- sigmoid(beta * (epsilon2 - residuals2))
-        i <- which.max(seq_along(residuals2) * loss)
     }
     sqrt(residuals2[i])
 }
@@ -389,19 +371,19 @@ next_beta <- function(residuals2, epsilon2, beta = 0, weight = NULL,
 
 #' Graduated Optimisation to solve the SLISE problem
 #'
-#' @param alpha initial linear model (if NULL then OLS)
-#' @param X data matrix
-#' @param Y response vector
-#' @param epsilon error tolerance
-#' @param beta starting sigmoid steepness (default: 0 == convex problem)
+#' @param alpha Initial linear model (if NULL then OLS)
+#' @param X Data matrix
+#' @param Y Response vector
+#' @param epsilon Error tolerance
+#' @param beta Starting sigmoid steepness (default: 0 == convex problem)
 #' @param lambda1 L1 coefficient (default: 0)
 #' @param lambda2 L1 coefficient (default: 0)
-#' @param weight weight vector (default: NULL == no weights)
-#' @param beta_max stopping sigmoid steepness (default: 20 / epsilon^2)
-#' @param max_approx approximation ratio when selecting the next beta (default: 1.15)
-#' @param max_iterations maximum number of OWL-QN iterations (default: 300)
-#' @param debug should debug statement be printed each iteration (default: FALSE)
-#' @param beta_min_increase minimum amount to increase beta (default: beta_max * 0.0005)
+#' @param weight Weight vector (default: NULL == no weights)
+#' @param beta_max Stopping sigmoid steepness (default: 20 / epsilon^2)
+#' @param max_approx Approximation ratio when selecting the next beta (default: 1.15)
+#' @param max_iterations Maximum number of OWL-QN iterations (default: 300)
+#' @param debug Should debug statement be printed each iteration (default: FALSE)
+#' @param beta_min_increase Minimum amount to increase beta (default: beta_max * 0.0005)
 #' @param ... Additional parameters to OWL-QN
 #'
 #' @return lbfgs object with beta (max) and the number of iteration steps
@@ -411,6 +393,13 @@ graduated_optimisation <- function(alpha, X, Y, epsilon, beta = 0, lambda1 = 0, 
                                    weight = NULL, beta_max = 20 / epsilon^2, max_approx = 1.15,
                                    max_iterations = 300, beta_min_increase = beta_max * 0.0005,
                                    debug = FALSE, ...) {
+    stopifnot(epsilon > 0)
+    stopifnot(beta >= 0)
+    stopifnot(lambda1 >= 0)
+    stopifnot(lambda2 >= 0)
+    stopifnot(beta_max > 0)
+    stopifnot(max_approx > 1)
+    stopifnot(max_iterations > 0)
     res <- list(par = if (is.null(alpha)) rep(0, ncol(X)) else alpha)
     max_approx <- log(max_approx)
     dc <- data_container(X = X, Y = Y, epsilon = epsilon, beta = beta, lambda1 = 0, lambda2 = lambda2, weight = weight)

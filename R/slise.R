@@ -7,16 +7,16 @@
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
 #'
-#' @param X matrix of independent variables
-#' @param Y vector of the response variable
-#' @param epsilon error tolerance
+#' @param X Matrix of independent variables
+#' @param Y Vector of the response variable
+#' @param epsilon Error tolerance
 #' @param lambda1 L1 regularisation coefficient (default: 0)
 #' @param lambda2 L2 regularisation coefficient (default: 0)
-#' @param weight optional weight vector, negative values will be truncated to zero (default: NULL)
+#' @param weight Optional weight vector (default: NULL)
 #' @param intercept Should an intercept be added (default: TRUE)
 #' @param normalise Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)
-#' @param initialisation function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)
-#' @param ... other parameters to the optimiser and initialiser
+#' @param initialisation Function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)
+#' @param ... Other parameters to the optimiser and initialiser
 #' @inheritDotParams graduated_optimisation max_approx beta_max max_iterations debug
 #' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
 #'
@@ -46,17 +46,19 @@ slise.fit <- function(X,
     Y <- c(Y)
     X_orig <- X
     Y_orig <- Y
-    if (length(weight) > 1) {
-        weight <- pmax(weight, 0)
+    if (any(weight < 0)) {
+        stop("Weights must not be negative!")
     }
     stopifnot(epsilon > 0)
+    stopifnot(lambda1 >= 0)
+    stopifnot(lambda2 >= 0)
     # Preprocessing
     if (normalise) {
         X <- remove_constant_columns(X)
         X <- scale_robust(X)
         Y <- scale_robust(Y)
         if (!intercept) {
-            stop("Normalisation requires intercept")
+            stop("Normalisation requires intercept!")
         }
     }
     if (intercept) {
@@ -111,18 +113,18 @@ slise.fit <- function(X,
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
 #'
-#' @param X matrix of independent variables
-#' @param Y vector of the dependent variable
-#' @param epsilon error tolerance
-#' @param x the sample to be explained (or index if y is null)
-#' @param y the prediction to be explained (default: NULL)
+#' @param X Matrix of independent variables
+#' @param Y Vector of the dependent variable
+#' @param epsilon Error tolerance
+#' @param x The sample to be explained (or index if y is null)
+#' @param y The prediction to be explained (default: NULL)
 #' @param lambda1 L1 regularisation coefficient (default: 0)
 #' @param lambda2 L2 regularisation coefficient (default: 0)
-#' @param weight optional weight vector, negative values will be truncated to zero (default: NULL)
+#' @param weight Optional weight vector (default: NULL)
 #' @param normalise Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)
 #' @param logit Logit transform Y from probabilities to real values (default: FALSE)
 #' @param initialisation function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)
-#' @param ... other parameters to the optimiser and initialiser
+#' @param ... Other parameters to the optimiser and initialiser
 #' @inheritDotParams graduated_optimisation max_approx beta_max max_iterations debug
 #' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
 #'
@@ -153,10 +155,12 @@ slise.explain <- function(X,
     if (logit) {
         Y <- limited_logit(Y)
     }
-    if (length(weight) > 1) {
-        weight <- pmax(weight, 0)
+    if (any(weight < 0)) {
+        stop("Weights must not be negative!")
     }
     stopifnot(epsilon > 0)
+    stopifnot(lambda1 >= 0)
+    stopifnot(lambda2 >= 0)
     X_orig <- X
     Y_orig <- Y
     if (is.null(y)) {
@@ -362,7 +366,7 @@ slise.object <- function(alpha,
                          ...) {
     var_names <- colnames(X)
     if (length(var_names) == 0 && is.null(var_names)) {
-        var_names <- paste(1:ncol(X))
+        var_names <- paste(seq_len(ncol(X)))
     }
     if (intercept) {
         dist <- (c(X %*% alpha[-1] + alpha[[1]]) - Y)^2
@@ -404,7 +408,7 @@ predict.slise <- function(object, newdata = NULL, ..., logit = FALSE) {
             newdata <- as.matrix(newdata)
         }
         if (ncol(newdata) != ncol(object$X)) {
-            stop(sprintf("Different number of columns in the new data %d != %d", ncol(newdata), ncol(object$X)))
+            stop(sprintf("Different number of columns in the new data %d != %d!", ncol(newdata), ncol(object$X)))
         }
     }
     if (object$intercept) {
