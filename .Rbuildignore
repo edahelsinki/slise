@@ -1,7 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.Rcheck$
 ^\.vscode
 ^experiments$
 ^.*.zip
 ^.*.tar.gz
 .lintr
+CITATIONS.bib
