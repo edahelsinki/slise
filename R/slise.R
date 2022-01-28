@@ -176,7 +176,11 @@ slise.explain <- function(X,
     if (normalise) {
         X <- remove_constant_columns(X)
         X <- scale_robust(X)
-        Y <- scale_robust(Y)
+        Y <- if (!logit) {
+            scale_robust(Y)
+        } else {
+            scale_identity(Y)
+        }
         x <- scale_same(x, X)
         y <- scale_same(y, Y)
     }

@@ -14,7 +14,7 @@ scale_robust(x, th = .Machine$double.eps)
 \item{th}{threshold for the scale being zero}
 }
 \value{
-a list(scaled, center, scale)
+scaled_x (with attributes "scaled:center" and "scaled:scale")
 }
 \description{
 Robust Scale

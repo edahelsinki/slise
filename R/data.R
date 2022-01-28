@@ -72,7 +72,7 @@ unscale_alpha <- function(alpha, x_center, x_scale, y_center=NULL, y_scale=NULL)
 #' @param x the vector/matrix to normalise
 #' @param th threshold for the scale being zero
 #'
-#' @return a list(scaled, center, scale)
+#' @return scaled_x (with attributes "scaled:center" and "scaled:scale")
 #' @export
 #'
 #' @importFrom stats median
@@ -97,6 +97,19 @@ scale_robust <- function(x, th = .Machine$double.eps) {
     }
     attr(x, "scaled:center") <- c(center)
     attr(x, "scaled:scale") <- c(scale)
+    x
+}
+
+
+#' A variant of `scale` that only adds the attributes
+#'
+#' @param x the vector to (not) scale
+#'
+#' @return x (with attributes "scaled:center" and "scaled:scale")
+#'
+scale_identity <- function(x) {
+    attr(x, "scaled:center") <- 0
+    attr(x, "scaled:scale") <- 1
     x
 }
 
