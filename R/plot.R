@@ -231,7 +231,7 @@ plot.slise_2d <- function(slise,
             shape = "Explained Point"
         ), size = size * 2)
     } else {
-        gg <- gg + ggplot2::guides(shape = FALSE, color = FALSE, linetype = FALSE)
+        gg <- gg + ggplot2::guides(shape = "none", color = "none", linetype = "none")
     }
     if (partial) {
         gg
