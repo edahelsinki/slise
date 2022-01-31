@@ -18,19 +18,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// log_sigmoidc
+arma::vec log_sigmoidc(const arma::vec& x);
+RcppExport SEXP _slise_log_sigmoidc(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_sigmoidc(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // loss_smooth_c
-double loss_smooth_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
-RcppExport SEXP _slise_loss_smooth_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP betaSEXP, SEXP epsilonSEXP, SEXP lambdaSEXP) {
+double loss_smooth_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& epsilon, const double& beta, const double& lambda1, const double& lambda2, const arma::vec& weight);
+RcppExport SEXP _slise_loss_smooth_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP epsilonSEXP, SEXP betaSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP weightSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec& >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type response(responseSEXP);
-    Rcpp::traits::input_parameter< const double& >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< const double& >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(loss_smooth_c(alpha, data, response, beta, epsilon, lambda));
+    Rcpp::traits::input_parameter< const double& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda1(lambda1SEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type weight(weightSEXP);
+    rcpp_result_gen = Rcpp::wrap(loss_smooth_c(alpha, data, response, epsilon, beta, lambda1, lambda2, weight));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -47,18 +60,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // loss_smooth_grad_c
-Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& beta, const double& epsilon, const double& lambda);
-RcppExport SEXP _slise_loss_smooth_grad_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP betaSEXP, SEXP epsilonSEXP, SEXP lambdaSEXP) {
+Rcpp::NumericVector loss_smooth_grad_c(const arma::vec& alpha, const arma::mat& data, const arma::vec& response, const double& epsilon, const double& beta, const double& lambda1, const double& lambda2, const arma::vec& weight);
+RcppExport SEXP _slise_loss_smooth_grad_c(SEXP alphaSEXP, SEXP dataSEXP, SEXP responseSEXP, SEXP epsilonSEXP, SEXP betaSEXP, SEXP lambda1SEXP, SEXP lambda2SEXP, SEXP weightSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec& >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type response(responseSEXP);
-    Rcpp::traits::input_parameter< const double& >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< const double& >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(loss_smooth_grad_c(alpha, data, response, beta, epsilon, lambda));
+    Rcpp::traits::input_parameter< const double& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda1(lambda1SEXP);
+    Rcpp::traits::input_parameter< const double& >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type weight(weightSEXP);
+    rcpp_result_gen = Rcpp::wrap(loss_smooth_grad_c(alpha, data, response, epsilon, beta, lambda1, lambda2, weight));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -123,9 +138,10 @@ RcppExport SEXP _rcpp_module_boot_slise_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_slise_sigmoidc", (DL_FUNC) &_slise_sigmoidc, 1},
-    {"_slise_loss_smooth_c", (DL_FUNC) &_slise_loss_smooth_c, 6},
+    {"_slise_log_sigmoidc", (DL_FUNC) &_slise_log_sigmoidc, 1},
+    {"_slise_loss_smooth_c", (DL_FUNC) &_slise_loss_smooth_c, 8},
     {"_slise_loss_smooth_c_dc", (DL_FUNC) &_slise_loss_smooth_c_dc, 2},
-    {"_slise_loss_smooth_grad_c", (DL_FUNC) &_slise_loss_smooth_grad_c, 6},
+    {"_slise_loss_smooth_grad_c", (DL_FUNC) &_slise_loss_smooth_grad_c, 8},
     {"_slise_loss_smooth_grad_c_dc", (DL_FUNC) &_slise_loss_smooth_grad_c_dc, 2},
     {"_slise_lg_combined_smooth_c_dc", (DL_FUNC) &_slise_lg_combined_smooth_c_dc, 2},
     {"_slise_lg_getgrad_c_dc", (DL_FUNC) &_slise_lg_getgrad_c_dc, 2},

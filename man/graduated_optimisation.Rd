@@ -4,37 +4,51 @@
 \alias{graduated_optimisation}
 \title{Graduated Optimisation to solve the SLISE problem}
 \usage{
-graduated_optimisation(alpha, X, Y, epsilon = 0.1, lambda = 0,
-  beta = 0, beta_max = 25, max_approx = 1.2, max_iterations = 100,
-  debug = FALSE, ..., beta_min_increase = beta_max * 5e-04,
-  beta_start_max = NULL)
+graduated_optimisation(
+  alpha,
+  X,
+  Y,
+  epsilon,
+  beta = 0,
+  lambda1 = 0,
+  lambda2 = 0,
+  weight = NULL,
+  beta_max = 20/epsilon^2,
+  max_approx = 1.15,
+  max_iterations = 300,
+  beta_min_increase = beta_max * 5e-04,
+  debug = FALSE,
+  ...
+)
 }
 \arguments{
-\item{alpha}{initial linear model (if NULL then OLS)}
+\item{alpha}{Initial linear model (if NULL then OLS)}
 
-\item{X}{data matrix}
+\item{X}{Data matrix}
 
-\item{Y}{response vector}
+\item{Y}{Response vector}
 
-\item{epsilon}{error tolerance}
+\item{epsilon}{Error tolerance}
 
-\item{lambda}{L1 coefficient (0)}
+\item{beta}{Starting sigmoid steepness (default: 0 == convex problem)}
 
-\item{beta}{starting sigmoid steepness (0 => convex problem)}
+\item{lambda1}{L1 coefficient (default: 0)}
 
-\item{beta_max}{stopping sigmoid steepness (25)}
+\item{lambda2}{L1 coefficient (default: 0)}
 
-\item{max_approx}{approximation ratio when selecting the next beta (1.2)}
+\item{weight}{Weight vector (default: NULL == no weights)}
 
-\item{max_iterations}{maximum number of OWL-QN iterations (100)}
+\item{beta_max}{Stopping sigmoid steepness (default: 20 / epsilon^2)}
 
-\item{debug}{should debug statement be printed each iteration (FALSE)}
+\item{max_approx}{Approximation ratio when selecting the next beta (default: 1.15)}
+
+\item{max_iterations}{Maximum number of OWL-QN iterations (default: 300)}
+
+\item{beta_min_increase}{Minimum amount to increase beta (default: beta_max * 0.0005)}
+
+\item{debug}{Should debug statement be printed each iteration (default: FALSE)}
 
 \item{...}{Additional parameters to OWL-QN}
-
-\item{beta_min_increase}{the minimum increase of beta each iteration (beta_max * 0.0005)}
-
-\item{beta_start_max}{Ignored}
 }
 \value{
 lbfgs object with beta (max) and the number of iteration steps

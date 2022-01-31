@@ -4,14 +4,16 @@
 \alias{matching_epsilon}
 \title{Find the matching *epsilon}
 \usage{
-matching_epsilon(residuals, epsilon, beta)
+matching_epsilon(residuals2, epsilon2, beta, weight = NULL)
 }
 \arguments{
-\item{residuals}{squared residuals}
+\item{residuals2}{squared residuals}
 
-\item{epsilon}{error tolerance}
+\item{epsilon2}{squared error tolerance}
 
 \item{beta}{sigmoid steepness}
+
+\item{weight}{weight vector (default: NULL)}
 }
 \value{
 *epsilon

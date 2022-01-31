@@ -11,8 +11,10 @@ __pycache__
 *.rds
 *ACLiC*
 .Rproj.user
+*Rproj
 r/*.html
 *.RData
+*.Rcheck
 *.aux
 *.log
 *.fls
@@ -35,6 +37,7 @@ vignettes/*.pdf
 *.knit.md
 rsconnect/
 experiments/results/*
+!experiments/results/*.png
 !experiments/results/*.jpg
 experiments/data/*
 !experiments/data/*.r
@@ -45,10 +48,14 @@ experiments/data/*
 tmp
 *.html
 *.zip
+*.tar.gz
+
 *~
 *.~
 todo.md
-.lintr
+*.dll
+data/*
+log*.txt
 !vignettes/paper.pdf
 !vignettes/presentation.pdf
 !vignettes/poster.pdf

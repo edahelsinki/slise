@@ -3,23 +3,21 @@
 \name{scale_robust}
 \alias{scale_robust}
 \title{Robust Scale
-A scale that can handle zero variance}
+A variant of 'scale' that is based on median and mad (instead of mean and sd).
+It can handle zero variance without producing nan:s.}
 \usage{
-scale_robust(x, center = TRUE, scale = TRUE, remove_constant = TRUE)
+scale_robust(x, th = .Machine$double.eps)
 }
 \arguments{
 \item{x}{the vector/matrix to normalise}
 
-\item{center}{Should constant columns be centered (TRUE)}
-
-\item{scale}{Should constant columns be scaled (TRUE)}
-
-\item{remove_constant}{Should constant columns be removed (TRUE)}
+\item{th}{threshold for the scale being zero}
 }
 \value{
-a list(scaled, center, scale, mask)
+scaled_x (with attributes "scaled:center" and "scaled:scale")
 }
 \description{
 Robust Scale
-A scale that can handle zero variance
+A variant of 'scale' that is based on median and mad (instead of mean and sd).
+It can handle zero variance without producing nan:s.
 }

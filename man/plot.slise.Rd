@@ -4,30 +4,37 @@
 \alias{plot.slise}
 \title{Plot the robust regression or explanation from slise}
 \usage{
-\method{plot}{slise}(slise, cols = 1, title = "SLISE", labels = NULL,
-  other = NULL, threed = FALSE, ...)
+\method{plot}{slise}(x, type = NULL, title = NULL, ...)
 }
 \arguments{
-\item{slise}{The slise object}
+\item{x}{The slise object}
 
-\item{cols}{The columns in the data to plot}
+\item{type}{The type of plot ("2D", "bar", "distribution", "mnist", "prediction", "wordcloud")}
 
-\item{title}{(Optional) The title of the plot (and result names when using other)}
+\item{title}{The title of the plot}
 
-\item{labels}{(Optional) The labels for the x, y, and legend (in that order, can be partial)}
-
-\item{other}{list of other slise objects to include in the plot}
-
-\item{threed}{plot in 3D with two columns}
-
-\item{...}{not used}
+\item{...}{
+  Arguments passed on to \code{\link[=plot.slise_2d]{plot.slise_2d}}, \code{\link[=plot.slise_bar]{plot.slise_bar}}, \code{\link[=plot.slise_distribution]{plot.slise_distribution}}, \code{\link[=plot.slise_mnist]{plot.slise_mnist}}, \code{\link[=plot.slise_prediction]{plot.slise_prediction}}, \code{\link[=plot.slise_wordcloud]{plot.slise_wordcloud}}
+  \describe{
+    \item{\code{labels}}{The axis labels (default: c("X", "Y") or c("x", "f(x)"))}
+    \item{\code{partial}}{Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)}
+    \item{\code{size}}{The size of the plot elements (default: 2)}
+    \item{\code{signif}}{The number of significant digits to display (default: 3)}
+    \item{\code{width}}{The width of the image (width * height == ncol(X))}
+    \item{\code{height}}{The height of the image (width * height == ncol(X))}
+    \item{\code{plots}}{The number of plots to split the explanation into (default: 1)}
+    \item{\code{treshold}}{Treshold for ignored value (default: 1e-8)}
+    \item{\code{local}}{Only display the words relevant for the explained item (default: TRUE)}
+  }}
+}
+\value{
+plot or ggplot2 objects
 }
 \description{
 Plot the robust regression or explanation from slise
 }
 \examples{
-data <- matrix(rnorm(200), 100, 2)
-response <- rnorm(100)
-slise <- slise.fit(data, response, epsilon=0.1)
-plot(slise, 1:2, threed = TRUE)
+X <- matrix(rnorm(30), 30, 1)
+Y <- runif(30, 0, 1)
+plot(slise.fit(X, Y, epsilon = 0.1))
 }

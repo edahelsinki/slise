@@ -2,9 +2,19 @@
 % Please edit documentation in R/optimisation.R
 \name{loss_smooth}
 \alias{loss_smooth}
-\title{Smooth Loss}
+\title{Smooth Loss
+A loss function for when you want gradients}
 \usage{
-loss_smooth(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3)
+loss_smooth(
+  alpha,
+  X,
+  Y,
+  epsilon,
+  beta,
+  lambda1 = 0,
+  lambda2 = 0,
+  weight = NULL
+)
 }
 \arguments{
 \item{alpha}{The vector to calculate loss for}
@@ -13,15 +23,20 @@ loss_smooth(alpha, X, Y, epsilon = 0.1, lambda = 0, beta = 3)
 
 \item{Y}{The response vector}
 
-\item{epsilon}{(Optional) The acceptable error}
+\item{epsilon}{The acceptable error}
 
-\item{lambda}{(Optional) The sparsity reguraliser}
+\item{beta}{The steepness of the sigmoid}
 
-\item{beta}{(Optional) The steepness of the sigmoid (default: 3)}
+\item{lambda1}{The L1 regulariser (default: 0)}
+
+\item{lambda2}{The L2 regulariser (default: 0)}
+
+\item{weight}{weight vector (default: NULL)}
 }
 \value{
 The loss value
 }
 \description{
 Smooth Loss
+A loss function for when you want gradients
 }

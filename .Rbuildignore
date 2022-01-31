@@ -1,4 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\.vscode
+^.*\.Rcheck$
+^\.vscode$
 ^experiments$
+^.*.zip
+^.*.tar.gz
+^\.lintr$
+^CITATIONS.bib$
+^\.github$

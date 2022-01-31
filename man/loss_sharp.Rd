@@ -2,9 +2,10 @@
 % Please edit documentation in R/optimisation.R
 \name{loss_sharp}
 \alias{loss_sharp}
-\title{Sharp Loss Function}
+\title{Sharp Loss Function
+Exact loss function without gradients}
 \usage{
-loss_sharp(alpha, X, Y, epsilon = 0.1, lambda = 0)
+loss_sharp(alpha, X, Y, epsilon, lambda1 = 0, lambda2 = 0, weight = NULL)
 }
 \arguments{
 \item{alpha}{The vector to calculate loss for}
@@ -13,13 +14,18 @@ loss_sharp(alpha, X, Y, epsilon = 0.1, lambda = 0)
 
 \item{Y}{The response vector}
 
-\item{epsilon}{(Optional) The acceptable error}
+\item{epsilon}{The acceptable error}
 
-\item{lambda}{(Optional) The sparsity reguraliser}
+\item{lambda1}{The L1 regulariser (default: 0)}
+
+\item{lambda2}{The L2 regulariser (default: 0)}
+
+\item{weight}{weight vector (default: NULL)}
 }
 \value{
 The loss value
 }
 \description{
 Sharp Loss Function
+Exact loss function without gradients
 }

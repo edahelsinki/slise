@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{scale_identity}
 \alias{scale_identity}
-\title{Create a scale list without any changes}
+\title{A variant of `scale` that only adds the attributes}
 \usage{
 scale_identity(x)
 }
@@ -10,8 +10,8 @@ scale_identity(x)
 \item{x}{the vector to (not) scale}
 }
 \value{
-a list(scaled = x, center = 0, scale = 1)
+x (with attributes "scaled:center" and "scaled:scale")
 }
 \description{
-Create a scale list without any changes
+A variant of `scale` that only adds the attributes
 }

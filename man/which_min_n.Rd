@@ -10,7 +10,7 @@ which_min_n(x, n)
 \arguments{
 \item{x}{vector}
 
-\item{n}{the number of indecies}
+\item{n}{the number of indices}
 }
 \value{
 vector of indecies

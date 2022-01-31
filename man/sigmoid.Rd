@@ -7,7 +7,7 @@
 sigmoid(x)
 }
 \arguments{
-\item{x}{vector}
+\item{x}{vector of real values}
 }
 \value{
 sigmoid(x)

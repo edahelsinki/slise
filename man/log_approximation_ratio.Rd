@@ -6,16 +6,18 @@
 (logarithms are used for numerically stable calculations)
 See Theorem 3 from the paper for more details}
 \usage{
-log_approximation_ratio(residuals, epsilon, beta1, beta2)
+log_approximation_ratio(residuals2, epsilon2, beta1, beta2, weight = NULL)
 }
 \arguments{
-\item{residuals}{squared residuals}
+\item{residuals2}{squared residuals}
 
-\item{epsilon}{error tolerance}
+\item{epsilon2}{squared error tolerance}
 
 \item{beta1}{current sigmoid steepness}
 
 \item{beta2}{next sigmoid steepness}
+
+\item{weight}{weight vector (default: NULL)}
 }
 \value{
 log(approximation_ratio)

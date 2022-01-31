@@ -1,17 +1,18 @@
 Package: slise
 Title: Sparse Linear Subset Explanations
-Version: 1.0.0
-Authors@R: person("Anton", "Björklund", email = "anton.bjorklund@helsinki.fi", role = c("aut", "cre"))
-Description: An implementation of the SLISE
-    algorithm for robust regression and
-    explaining outcomes from black box models.
+Version: 2.0.0
+Authors@R: c(
+    person("Anton", "Björklund", email = "anton.bjorklund@helsinki.fi", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7749-2918")),
+    person("Andreas", "Henelius", role = "aut", comment = c(ORCID = "0000-0002-4040-6967")),
+    person("Kai", "Puolamäki", role = "aut", comment = c(ORCID = "0000-0003-1819-1047")))
+Description: An implementation of the SLISE algorithm (for robust regression and explaining outcomes from black box models).
 Depends: R (>= 3.5), Rcpp
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: lbfgs, RcppArmadillo, ggplot2, stats, utils, methods, graphics, grDevices
-Suggests: scatterplot3d, grid, gridExtra, reshape2, crayon, wordcloud, testthat, stringr, numDeriv, R.rsp
+Imports: lbfgs, stats, utils, methods, graphics, base
+Suggests: ggplot2, grid, gridExtra, reshape2, wordcloud, testthat, numDeriv, R.rsp
 URL: https://github.com/edahelsinki/slise
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 6.1.1.9000
+RoxygenNote: 7.1.1
 VignetteBuilder: R.rsp

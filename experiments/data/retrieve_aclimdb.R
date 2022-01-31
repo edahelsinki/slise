@@ -7,194 +7,213 @@
 ##
 ## Usage:
 ##
-##        Rscript --vanilla retrieve_aclimdb.R destdir
+##        Rscript --vanilla retrieve_aclimdb.R [destdir]
 ##
-## This will download the data, preprocess it
-## and create an rds-file containing training
-## and testing data.
+## This will download the data, preprocess it and create an
+## rds-file containing training and testing data.
 ##
-## The argument 'destdir' specifies the destination directory
+## The argument 'destdir' specifies where the data and models
+## should be saved (default: "experiments/data").
+##
+## Alternatively it can be sourced from a script to only get
+## access to the get_data and get_review functions.
+##
 ## --------------------------------------------------
 
-## --------------------------------------------------
-## Libraries
-## --------------------------------------------------
-library(tm)
-library(qdap)
-library(Matrix)
-library(SnowballC)
 
-library(e1071)
-library(randomForest)
-library(elmNNRcpp)
+library(stringr)
 
-source("utils.R")
 
-aclimdb_clean <- function(source) {
-    data <- VCorpus(source, readerControl = list(language = "en"))
-    data <- tm_map(data, content_transformer(function(x) gsub("<br />", " ", x)))
-    data <- tm_map(data, stripWhitespace)
-    data <- tm_map(data, content_transformer(tolower))
-    data <- tm_map(data, content_transformer(removePunctuation))
-    data <- tm_map(data, content_transformer(removeNumbers))
-    data <- tm_map(data, content_transformer(qdap::bracketX))
-    data <- tm_map(data, removeWords, stopwords("english"))
-    data <- tm_map(data, stemDocument)
+read_text_file <- function(path) {
+    file <- file(path, encoding = "UTF-8")
+    str <- readChar(path, file.info(path)$size)
+    close(file)
+    str_replace_all(str, "((<br />)|(\\n)|(\\\\n))", "\n")
+}
+
+aclimdb_get_data <- function(set = "test", datadir = "experiments/data") {
+    data <- readRDS(file.path(datadir, paste0("aclimdb_data_", set, ".rds")))
+    pred <- readRDS(file.path(datadir, paste0("aclimdb_pred_", set, ".rds")))
+    data$prediction <- pred
     data
 }
 
-aclimdb_get_review <- function(data, index, set="test") {
-    id <- rownames(data$X)[[index]]
-    cls <- if (data$R[[index]] == 0) "neg" else "pos"
-    path <- file.path("experiments/data/aclImdb", set, cls, id)
-    file <- file(path, encoding = "UTF-8")
-    review <- paste(readLines(file, warn = FALSE))
-    close(file)
-    review <- stringr::str_replace_all(review, "<br /><br />", " ")
-    aclimbd_vectorise(review, colnames(data$X))
-}
-
-aclimbd_vectorise <- function(review, cols) {
-    data <- aclimdb_clean(VectorSource(stringr::str_split(review, " ")[[1]]))
-    vec <- c(rep(0, length(cols)))
-    tokens <- sapply(data$content, function(d) d$content)
-    for (d in tokens) {
-        sel <- which(d == cols)
-        vec[sel] <- vec[sel] + 1
+aclimdb_get_review <- function(index, data = NULL, set = "test", datadir = "experiments/data") {
+    if (missing(data)) {
+        data <- aclimdb_get_data(set, datadir = datadir)
     }
-    vec <- vec / max(vec)
-    list(vec = vec, tokens = tokens, text = review)
+    str <- readRDS(file.path(datadir, paste0("aclimdb_str_", set, ".rds")))
+
+    list(
+        x = data$data[index, ],
+        y = data$class[index, ],
+        svm = data$prediction$svm[index],
+        elm = data$prediction$elm[index],
+        rf = data$prediction$rf[index],
+        str = str[[index]],
+    )
 }
 
 
 # This is only run when called from Rscript
 if (sys.nframe() == 0L) {
-
     ## --------------------------------------------------
-    ## Command-line arguments
+    ## Libraries
     ## --------------------------------------------------
-    args    <- commandArgs(trailingOnly = TRUE)
-    if (length(args) < 1)
-        destdir <- "experiments/data"
-    else
-        destdir <- args[1]
-
-    ## --------------------------------------------------
-    ## Retrieve the data
-    ## --------------------------------------------------
-    cat("Downloading Data\n")
-    dataURL <- "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
-    download.file(dataURL, destfile = file.path(destdir, basename(dataURL)))
-    untar(file.path(destdir, basename(dataURL)), exdir = destdir)
-
+    library(tm)
+    library(Matrix)
+    library(e1071)
+    library(randomForest)
+    library(elmNNRcpp)
 
     ## --------------------------------------------------
     ## Helper functions
     ## --------------------------------------------------
-    preprocess_data <- function(dpath) {
-        aclimdb_clean(DirSource(dpath, encoding = "UTF-8"))
+    aclimdb_clean <- function(source) {
+        data <- VCorpus(source, readerControl = list(language = "en"))
+        data <- tm_map(data, content_transformer(function(x) gsub("((<br />)|(\\\\n)|(\\n))", " ", x)))
+        data <- tm_map(data, content_transformer(function(x) gsub("(<|>|\\(|\\)|\\[|\\]|\\{|\\})", " ", x)))
+        data <- tm_map(data, stripWhitespace)
+        data <- tm_map(data, content_transformer(tolower))
+        data <- tm_map(data, content_transformer(removePunctuation))
+        data <- tm_map(data, content_transformer(removeNumbers))
+        data <- tm_map(data, removeWords, stopwords("english"))
+        data <- tm_map(data, stemDocument)
+        data
     }
 
-    make_sparse_mat <- function(dtm) {
-        Matrix::sparseMatrix(i = dtm$i, j = dtm$j, x = dtm$v)
-    }
-
-    make_dtm <- function(data, N = NULL) {
-
+    aclimdb_select_words <- function(data, num_words = NULL) {
         dtm_data <- DocumentTermMatrix(data)
 
-        ## Make a sparse matrix
-        M <- make_sparse_mat(dtm_data)
-
         ## Find N most frequent terms
-        cs <- colSums(M)
+        mat <- sparseMatrix(i = dtm_data$i, j = dtm_data$j, x = dtm_data$v)
+        cs <- colSums(mat)
         ind <- order(cs, decreasing = TRUE)
-        if (! is.null(N))
-            colnames(dtm_data)[ind][1:N]
-        else
+        if (!is.null(num_words)) {
+            colnames(dtm_data)[ind[1:num_words]]
+        } else {
             colnames(dtm_data)[ind]
-    }
-
-    make_dictionary <- function(data_pos, data_neg, N) {
-        list("common" = make_dtm(c(data_pos, data_neg), N))
-    }
-
-    discretize_documents <- function(data, dic) {
-        DocumentTermMatrix(data, control = list(dictionary = dic))
-    }
-
-    make_dataset <- function(data_pos = NULL, data_neg = NULL, dir_pos = NULL, dir_neg = NULL, dic) {
-        if (! (is.null(dir_pos) & is.null(dir_neg))) {
-            data_pos <- preprocess_data(dir_pos)
-            data_neg <- preprocess_data(dir_neg)
         }
+    }
 
+    aclimdb_make_dataset <- function(data_pos, data_neg, words) {
         dataset <- rbind(
-            as.matrix(discretize_documents(data_pos, dic = unlist(dic))),
-            as.matrix(discretize_documents(data_neg, dic = unlist(dic))))
+            as.matrix(DocumentTermMatrix(data_pos, control = list(dictionary = words))),
+            as.matrix(DocumentTermMatrix(data_neg, control = list(dictionary = words)))
+        )
+        dataset <- sweep(dataset, 1, apply(dataset, 1, max) + 0.1, `/`)
+        classes <- factor(c("pos", "neg"))
 
-        dataset <- dataset / apply(dataset, 1, max)
-        dataset[is.na(dataset)] <- 0
-
-        dataset <- as.data.frame(dataset)
-
-        list("data" = dataset, "class" = as.factor(c(rep(c("pos", "neg"), each=length(data_neg)))))
+        list(
+            "data" = as.data.frame(dataset),
+            "class" = classes[c(rep(1, length(data_pos)), rep(2, length(data_neg)))]
+        )
     }
 
-    get_acc <- function(model, dataset_test) {
-        res <- predict(model, newdata = dataset_test)
-        sum(as.character(dataset_test$class) == as.character(res)) / nrow(dataset_test)
+    ## --------------------------------------------------
+    ## Command-line arguments
+    ## --------------------------------------------------
+    args <- commandArgs(trailingOnly = TRUE)
+    if (length(args) < 1) {
+        destdir <- "experiments/data"
+    } else {
+        destdir <- args[1]
+    }
+    dir.create(file.path(destdir), showWarnings = FALSE)
+
+
+    ## --------------------------------------------------
+    ## Paths
+    ## --------------------------------------------------
+    data_url <- "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+    path_data <- file.path(destdir, basename(data_url))
+    path_str_test <- file.path(destdir, "aclimdb_str_test.rds")
+    path_str_train <- file.path(destdir, "aclimdb_str_train.rds")
+    path_data_test <- file.path(destdir, "aclimdb_data_test.rds")
+    path_data_train <- file.path(destdir, "aclimdb_data_train.rds")
+    path_models <- file.path(destdir, "aclimdb_models.rds")
+    path_pred_test <- file.path(destdir, "aclimdb_pred_test.rds")
+    path_pred_train <- file.path(destdir, "aclimdb_pred_train.rds")
+
+
+    ## --------------------------------------------------
+    ## Retrieve the data
+    ## --------------------------------------------------
+    if (!file.exists(path_data)) {
+        cat("Downloading Data\n")
+        download.file(data_url, destfile = path_data)
+    }
+    if (!file.exists(path_str_test) || !file.exists(path_str_train)) {
+        cat("Extracting Data\n")
+        dir <- tempdir()
+        untar(path_data, "*.txt", exdir = dir)
+        test_str <- list(
+            pos = sapply(list.files(file.path(dir, "aclImdb/test/pos"), full.names = TRUE), read_text_file),
+            neg = sapply(list.files(file.path(dir, "aclImdb/test/neg"), full.names = TRUE), read_text_file)
+        )
+        saveRDS(test_str, path_str_test, compress = "xz")
+        train_str <- list(
+            pos = sapply(list.files(file.path(dir, "aclImdb/train/pos"), full.names = TRUE), read_text_file),
+            neg = sapply(list.files(file.path(dir, "aclImdb/train/neg"), full.names = TRUE), read_text_file)
+        )
+        saveRDS(train_str, path_str_train, compress = "xz")
+        unlink(file.path(dir, "aclImbd"), TRUE)
+    } else {
+        cat("Loading Data\n")
+        test_str <- readRDS(path_str_test)
+        train_str <- readRDS(path_str_train)
     }
 
 
     ## --------------------------------------------------
-    ## Define directories with the data
+    ## Preprocess the data
     ## --------------------------------------------------
-    dir_train_pos <- file.path(destdir, "aclImdb/train/pos/")
-    dir_train_neg <- file.path(destdir, "aclImdb/train/neg/")
+    if (!file.exists(path_data_test) || !file.exists(path_data_train)) {
+        cat("Processing Data\n")
+        test_pos <- aclimdb_clean(VectorSource(test_str$pos))
+        test_neg <- aclimdb_clean(VectorSource(test_str$neg))
+        train_pos <- aclimdb_clean(VectorSource(train_str$pos))
+        train_neg <- aclimdb_clean(VectorSource(train_str$neg))
 
-    dir_test_pos <- file.path(destdir, "aclImdb/test/pos/")
-    dir_test_neg <- file.path(destdir, "aclImdb/test/neg/")
-
-    data_train_pos <- preprocess_data(dir_train_pos)
-    data_train_neg <- preprocess_data(dir_train_neg)
+        num_words <- 1000
+        words <- aclimdb_select_words(c(train_pos, train_neg), num_words)
+        dataset_train <- aclimdb_make_dataset(train_pos, train_neg, words)
+        saveRDS(dataset_train, path_data_train, compress = "xz")
+        dataset_test <- aclimdb_make_dataset(test_pos, test_neg, words)
+        saveRDS(dataset_test, path_data_test, compress = "xz")
+    } else {
+        cat("Loading Processed Data\n")
+        dataset_train <- readRDS(path_data_train)
+        dataset_test <- readRDS(path_data_test)
+    }
 
 
     ## --------------------------------------------------
-    ## (1) Create a dictionary with N words
-    ## (2) Make datasets
-    ## (3) Create classifiers
-    ## (4) Save
+    ## Train models
     ## --------------------------------------------------
+    if (!file.exists(path_models)) {
+        cat("Training SVM\n")
+        model_svm <- svm(x = dataset_train$data, y = dataset_train$class, kernel = "radial", probability = TRUE)
+        cat("Training ELM\n")
+        model_elm <- elm_train(as.matrix(dataset_train$data), onehot_encode(as.numeric(dataset_train$class) - 1),
+            nhid = 1000, actfun = "sig", init_weights = "uniform_negative", bias = TRUE, verbose = TRUE
+        )
+        cat("Training RF\n")
+        model_rf <- randomForest(x = dataset_train$data, y = dataset_train$class)
 
-    cat("Processing Data\n")
-    N_words <- 1000
-    dict    <- make_dictionary(data_pos = data_train_pos, data_neg = data_train_neg, N = N_words)
-    dataset_train <- make_dataset(data_pos = data_train_pos, data_neg = data_train_neg, dic = dict)
-    dataset_test  <- make_dataset(dir_pos = dir_test_pos, dir_neg = dir_test_neg, dic = dict)
+        saveRDS(list(svm = model_svm, elm = model_elm, rf = model_rf), path_models, compress = "xz")
+    } else {
+        cat("Loading Models\n")
+        models <- readRDS(path_models)
+        model_svm <- models$svm
+        model_elm <- models$elm
+        model_rf <- models$rf
+    }
 
-    ## Create models
-    cat("Training SVM\n")
-    model_svm <- svm(x = dataset_train$data, y = dataset_train$class, kernel = "radial", probability = TRUE)
-    saveRDS(model_svm, file.path(destdir, "aclimdb_model_svm.rds"), compress = "xz")
 
-    cat("Training ELM\n")
-    model_elm <- elm_train(as.matrix(dataset_train$data), onehot_encode(as.numeric(dataset_train$class) - 1),
-        nhid = 1000, actfun = "sig", init_weights = "uniform_negative", bias = TRUE, verbose = TRUE)
-    saveRDS(model_elm, file.path(destdir, "aclimdb_model_elm.rds"), compress = "xz")
-
-    cat("Training RF\n")
-    model_rf  <- randomForest(x = dataset_train$data, y = dataset_train$class)
-    saveRDS(model_rf, file.path(destdir, "aclimdb_model_rf.rds"), compress = "xz")
-
-    cat("Training LogReg\n")
-    model_lr <- glm(dataset_train$class ~ ., dataset_train$data, family="binomial", model=FALSE)
-    model_lr[c("data", "y", "model", "residuals", "weights", "fitted.values",
-        "prior.weights", "na.action", "linear.predictors", "effects", "R")] <- NULL
-    model_lr$qr$qr <- NULL
-    saveRDS(model_lr, file.path(destdir, "aclimdb_model_lr.rds"), compress = "xz")
-
-    ## Functions for making predictions
+    ## --------------------------------------------------
+    ## Making predictions
+    ## --------------------------------------------------
     pred_svm <- function(model, data) {
         p_svm <- predict(model, newdata = data, probability = TRUE)
         unname(attr(p_svm, "probabilities")[, 1])
@@ -206,30 +225,23 @@ if (sys.nframe() == 0L) {
     }
 
     pred_rf <- function(model, data) {
-        p_rf  <- predict(model, newdata = data, type = "prob")
+        p_rf <- predict(model, newdata = data, type = "prob")
         unname(p_rf[, 2])
     }
-
-    pred_lr <- function(model, data) {
-        p_lr <- predict(model, newdata = data)
-        sigmoid(unname(p_lr))
+    if (!file.exists(path_pred_test)) {
+        cat("Predicting Test Data\n")
+        saveRDS(data.frame(
+            svm = pred_svm(model_svm, dataset_test$data),
+            elm = pred_elm(model_elm, dataset_test$data),
+            rf = pred_rf(model_rf, dataset_test$data)
+        ), path_pred_test, compress = "xz")
     }
-
-
-    ## Probability of item being positive
-    cat("Predicting Training Data\n")
-    dataset_train$prob_svm <- pred_svm(model_svm, dataset_train$data)
-    dataset_train$prob_elm <- pred_elm(model_elm, dataset_train$data)
-    dataset_train$prob_rf  <- pred_rf(model_rf, dataset_train$data)
-    dataset_train$prob_lr  <- pred_lr(model_lr, dataset_train$data)
-    saveRDS(dataset_train, file.path(destdir, "aclimdb_data_train.rds"), compress = "xz")
-
-    cat("Predicting Test Data\n")
-    dataset_test$prob_svm  <- pred_svm(model_svm, dataset_test$data)
-    dataset_test$prob_elm  <- pred_elm(model_elm, dataset_test$data)
-    dataset_test$prob_rf   <- pred_rf(model_rf, dataset_test$data)
-    dataset_test$prob_lr   <- pred_lr(model_lr, dataset_test$data)
-    saveRDS(dataset_test, file.path(destdir, "aclimdb_data_test.rds"), compress = "xz")
-
-    ## --------------------------------------------------
+    if (!file.exists(path_pred_train)) {
+        cat("Predicting Train Data\n")
+        saveRDS(data.frame(
+            svm = pred_svm(model_svm, dataset_train$data),
+            elm = pred_elm(model_elm, dataset_train$data),
+            rf = pred_rf(model_rf, dataset_train$data)
+        ), path_pred_train, compress = "xz")
+    }
 }
