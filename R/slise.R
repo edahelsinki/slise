@@ -168,6 +168,8 @@ slise.explain <- function(X,
 #' Use SLISE for explaining predictions made by a black box.
 #' BUT with a binary search for sparsity!
 #'
+#' DEPRECATED: This is a simple binary search, no need for a separate function
+#'
 #' @param ... parameters to slise.explain
 #' @inheritDotParams slise.explain -lambda1
 #' @param lambda1 the starting value of the search
@@ -179,6 +181,7 @@ slise.explain <- function(X,
 #' @export
 #'
 slise.explain_find <- function(..., lambda1 = 5, variables = 4, iters = 10, treshold = 1e-4) {
+    .Deprecated("slise.explain_comb")
     lower <- 0
     upper <- -1
     upper_best <- NULL
