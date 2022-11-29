@@ -1,6 +1,6 @@
 # SLISE - Sparse Linear Subset Explanations
 
-R implementation of the SLISE algorithm. The SLISE algorithm can be used for both robust regression and to explain outcomes from black box models. For more details see [the original paper](https://rdcu.be/bVbda) or the [robust regression paper](https://rdcu.be/cFRHD). Alternatively for a more informal overview see [the presentation](https://github.com/edahelsinki/slise/raw/master/vignettes/presentation.pdf), or [the poster](https://github.com/edahelsinki/slise/raw/master/vignettes/poster.pdf).
+R implementation of the SLISE algorithm. The SLISE algorithm can be used for both robust regression and to explain outcomes from black box models. For more details see [the original paper](https://rdcu.be/bVbda) or the [robust regression paper](https://rdcu.be/cFRHD). Alternatively for a more informal overview see [the presentation](https://github.com/edahelsinki/slise/raw/master/docs/presentation.pdf), or [the poster](https://github.com/edahelsinki/slise/raw/master/docs/poster.pdf).
 
 > *Björklund A., Henelius A., Oikarinen E., Kallonen K., Puolamäki K.* (2019)  
 > **Sparse Robust Regression for Explaining Classifiers.**  
@@ -71,7 +71,7 @@ plot(slise, title = "", partial = TRUE, size = 2) +
     theme(axis.title.y = element_text(angle = 0, vjust = 0.5), legend.key.size = grid::unit(2, "line")) +
     guides(shape = FALSE, color = "legend", linetype = "legend")
 ```
-![Robust Regression Example Plot](experiments/results/ex1.png)
+![Robust Regression Example Plot](docs/ex1.png)
 
 
 SLISE can also be used to explain predictions from black box models such as convolutional neural networks:
@@ -86,7 +86,7 @@ slise <- slise.explain(emnist$X, emnist$Y, 0.5, emnist$X[17,], emnist$Y[17], 3, 
 
 plot(slise, "image", "", c("not 2", "is 2"), plots = 1)
 ```
-![Explanation Example Plot](experiments/results/ex2.png)
+![Explanation Example Plot](docs/ex2.png)
 
 
 ## Dependencies

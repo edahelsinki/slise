@@ -3,6 +3,8 @@
 ^.*\.Rcheck$
 ^\.vscode$
 ^experiments$
+^tests$
+^docs$
 ^.*.zip
 ^.*.tar.gz
 ^\.lintr$
