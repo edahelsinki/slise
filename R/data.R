@@ -13,7 +13,7 @@ add_intercept_column <- function(x) {
 }
 
 remove_intercept_column <- function(x) {
-    x2 <- x[, -1]
+    x2 <- x[, -1, drop = FALSE]
     attr(x2, "scaled:center") <- attr(x, "scaled:center")
     attr(x2, "scaled:scale") <- attr(x, "scaled:scale")
     attr(x2, "constant_columns") <- attr(x, "constant_columns")
