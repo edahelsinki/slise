@@ -50,7 +50,11 @@ print.slise <- function(x, num_vars = 10, ...) {
     # Other Values
     cat(sprintf("Subset size: %7.2f\n", mean(slise$subset)))
     cat(sprintf("Loss:        %7.2f\n", slise$value))
-    cat(sprintf("Epsilon:     %7.2f\n", slise$epsilon))
+    if (is.null(slise$normalised_epsilon)) {
+        cat(sprintf("Epsilon:     %7.2f\n", slise$epsilon))
+    } else {
+        cat(sprintf("Epsilon:     %7.2f   (Normalised: %7.2f)\n", slise$epsilon, slise$normalised_epsilon))
+    }
     if (slise$lambda1 > 0) {
         cat(sprintf("Lambda1:     %7.2f\n", slise$lambda1))
     }
