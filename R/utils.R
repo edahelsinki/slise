@@ -1,7 +1,5 @@
 # This script contains some utility functions
 
-library(lbfgs)
-
 #' sigmoid function
 #'
 #' @param x vector of real values
@@ -27,7 +25,7 @@ dsigmoid <- function(x) {
 #'
 #' @return log(sigmoid(x))
 #'
-log_sigmoid <- function(x) ifelse(x >= 0, - log(1 + exp(-x)), x - log(1 + exp(x)))
+log_sigmoid <- function(x) ifelse(x >= 0, -log(1 + exp(-x)), x - log(1 + exp(x)))
 
 #' derivative of log-sigmoid function
 #'
@@ -115,3 +113,21 @@ check_package <- function(pack) {
         stop(paste0("Package \"", pack, "\" needed for the function to work. Please install it."), call. = FALSE)
     }
 }
+
+#' Creates a named list where the names are taken from the input variables
+#'
+#' NOTE: only supports arguments, not keyword arguments
+#'
+#' @param ... list elements
+#'
+#' @return named list of elements
+#'
+#' @export
+#' @importFrom stats setNames
+#'
+#' @examples
+#' a <- 1
+#' b <- 2
+#' auto_named_list(a, b)$a == 1
+#' auto_named_list(a, b)$b == 2
+auto_named_list <- function(...) setNames(list(...), substitute(alist(...)))

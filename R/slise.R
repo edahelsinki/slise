@@ -20,7 +20,7 @@
 #' @inheritDotParams graduated_optimisation max_approx beta_max max_iterations debug
 #' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
 #'
-#' @return slise object (coefficients, subset, value, X, Y, lambda1, lambda2, epsilon, scaled, alpha)
+#' @return slise.object
 #' @export
 #'
 #' @examples
@@ -42,40 +42,19 @@ slise.fit <- function(X,
                       ...) {
     # Setup
     matprod_default <- options(matprod = "blas") # Use faster math
-    X <- as.matrix(X)
-    Y <- c(Y)
-    X_orig <- X
-    Y_orig <- Y
-    if (any(weight < 0)) {
-        stop("Weights must not be negative!")
-    }
-    stopifnot(epsilon > 0)
-    stopifnot(lambda1 >= 0)
-    stopifnot(lambda2 >= 0)
-    # Preprocessing
-    if (normalise) {
-        X <- remove_constant_columns(X)
-        X <- scale_robust(X)
-        Y <- scale_robust(Y)
-        if (!intercept) {
-            stop("Normalisation requires intercept!")
-        }
-    }
-    if (intercept) {
-        X <- add_intercept_column(X)
-    }
+    data <- slise.preprocess(X, Y, epsilon, NULL, NULL, lambda1, lambda2, weight, intercept, normalise, FALSE)
     # Initialisation
     if (is.list(initialisation)) {
         init <- initialisation
         names(init) <- c("alpha", "beta")
     } else {
-        init <- initialisation(X, Y, epsilon = epsilon, weight = weight, ...)
+        init <- initialisation(data$X, data$Y, epsilon = epsilon, weight = weight, ...)
     }
     # Optimisation
     alpha <- graduated_optimisation(
         init$alpha,
-        X,
-        Y,
+        data$X,
+        data$Y,
         epsilon = epsilon,
         beta = init$beta,
         lambda1 = lambda1,
@@ -84,23 +63,18 @@ slise.fit <- function(X,
         ...
     )$par
     # Output
+    out <- slise.object(
+        alpha = alpha,
+        X = data$X,
+        Y = data$Y,
+        epsilon = epsilon,
+        lambda1 = lambda1,
+        lambda2 = lambda2,
+        weight = weight,
+        intercept = intercept
+    )
     if (normalise) {
-        alpha2 <- unscale_alpha(alpha, X, Y)
-        alpha2 <- add_constant_columns(alpha2, attr(X, "constant_columns") + 1)
-        alpha <- add_constant_columns(alpha, attr(X, "constant_columns") + 1)
-        out <- slise.object(
-            alpha2,
-            X_orig,
-            Y_orig,
-            epsilon * attr(Y, "scaled:scale"),
-            lambda1,
-            lambda2,
-            weight,
-            intercept,
-            normalised = alpha
-        )
-    } else {
-        out <- slise.object(alpha, X_orig, Y, epsilon, lambda1, lambda2, weight, intercept)
+        out <- slise.object_unnormalise(out, data$X_orig, data$Y_orig)
     }
     options(matprod_default) # Reset options
     out
@@ -128,7 +102,7 @@ slise.fit <- function(X,
 #' @inheritDotParams graduated_optimisation max_approx beta_max max_iterations debug
 #' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
 #'
-#' @return slise object (coefficients, subset, value, X, Y, lambda1, lambda2, epsilon, scaled, alpha, x, y)
+#' @return slise.object
 #' @export
 #'
 #' @examples
@@ -150,55 +124,19 @@ slise.explain <- function(X,
                           ...) {
     # Setup
     matprod_default <- options(matprod = "blas") # Use faster math
-    X <- as.matrix(X)
-    Y <- c(Y)
-    if (logit) {
-        Y <- limited_logit(Y)
-    }
-    if (any(weight < 0)) {
-        stop("Weights must not be negative!")
-    }
-    stopifnot(epsilon > 0)
-    stopifnot(lambda1 >= 0)
-    stopifnot(lambda2 >= 0)
-    X_orig <- X
-    Y_orig <- Y
-    if (is.null(y)) {
-        # x is an index
-        y <- Y[[x]]
-        x <- X[x, ]
-    } else if (logit) {
-        y <- limited_logit(y)
-    }
-    x_orig <- x
-    y_orig <- y
-    # Preprocessing
-    if (normalise) {
-        X <- remove_constant_columns(X)
-        X <- scale_robust(X)
-        Y <- if (!logit) {
-            scale_robust(Y)
-        } else {
-            scale_identity(Y)
-        }
-        x <- scale_same(x, X)
-        y <- scale_same(y, Y)
-    }
-    # Localise
-    X <- sweep(X, 2, x)
-    Y <- Y - y
+    data <- slise.preprocess(X, Y, epsilon, x, y, lambda1, lambda2, weight, FALSE, normalise, logit)
     # Initialisation
     if (is.list(initialisation)) {
         init <- initialisation
         names(init) <- c("alpha", "beta")
     } else {
-        init <- initialisation(X, Y, epsilon = epsilon, weight = weight, ...)
+        init <- initialisation(data$X, data$Y, epsilon = epsilon, weight = weight, ...)
     }
     # Optimisation
     alpha <- graduated_optimisation(
         init$alpha,
-        X,
-        Y,
+        data$X,
+        data$Y,
         epsilon = epsilon,
         beta = init$beta,
         lambda1 = lambda1,
@@ -207,47 +145,20 @@ slise.explain <- function(X,
         ...
     )$par
     # Output
+    out <- slise.object(
+        alpha = alpha,
+        X = data$X,
+        Y = data$Y,
+        epsilon = epsilon,
+        lambda1 = lambda1,
+        lambda2 = lambda2,
+        weight = weight,
+        logit = logit,
+        x = data$x,
+        y = data$y
+    )
     if (normalise) {
-        alpha2 <- unscale_alpha(alpha, X, Y)
-        alpha2 <- add_constant_columns(alpha2[-1], attr(X, "constant_columns"))
-        alpha2 <- c(y_orig - sum(x_orig * alpha2), alpha2)
-        alpha <- add_constant_columns(alpha, attr(X, "constant_columns"))
-        x <- add_constant_columns(x, attr(X, "constant_columns"))
-        alpha <- c(y - sum(x * alpha), alpha)
-        out <- slise.object(
-            alpha2,
-            X_orig,
-            Y_orig,
-            epsilon * attr(Y, "scaled:scale"),
-            lambda1,
-            lambda2,
-            weight,
-            TRUE,
-            x = x_orig,
-            y = y_orig,
-            impact = c(1, x_orig) * alpha2,
-            logit = logit,
-            normalised = alpha,
-            normalised_x = x,
-            normalised_y = y,
-            normalised_impact = c(1, x) * alpha
-        )
-    } else {
-        alpha <- c(y_orig - sum(x_orig * alpha), alpha)
-        out <- slise.object(
-            alpha,
-            X_orig,
-            Y_orig,
-            epsilon,
-            lambda1,
-            lambda2,
-            weight,
-            TRUE,
-            x = x_orig,
-            y = y_orig,
-            impact = c(1, x_orig) * alpha,
-            logit = logit
-        )
+        out <- slise.object_unnormalise(out, data$X_orig, data$Y_orig, data$x_orig, data$y_orig)
     }
     options(matprod_default) # Reset options
     out
@@ -339,6 +250,85 @@ slise.explain_comb <- function(X, Y, epsilon, x, y = NULL, ..., variables = 4) {
     expl
 }
 
+#'  Preprocess the data as necessary before running SLISE
+#'
+#' @param X Matrix of independent variables
+#' @param Y Vector of the target variable
+#' @param epsilon Error tolerance
+#' @param x The sample to be explained (or index if y is null)
+#' @param y The prediction to be explained (default: NULL)
+#' @param lambda1 L1 regularisation coefficient (default: 0)
+#' @param lambda2 L2 regularisation coefficient (default: 0)
+#' @param weight Optional weight vector (default: NULL)
+#' @param intercept Should an intercept be added (default: TRUE)
+#' @param normalise Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)
+#' @param logit Logit transform Y from probabilities to real values (default: FALSE)
+#'
+#' @return list(X_orig, Y_orig, X, Y, x_orig, y_orig, x, y)
+slise.preprocess <- function(X,
+                             Y,
+                             epsilon,
+                             x = NULL,
+                             y = NULL,
+                             lambda1 = 0,
+                             lambda2 = 0,
+                             weight = NULL,
+                             intercept = FALSE,
+                             normalise = FALSE,
+                             logit = FALSE) {
+    # Checks
+    stopifnot(epsilon > 0)
+    stopifnot(lambda1 >= 0)
+    stopifnot(lambda2 >= 0)
+    if (any(weight < 0)) stop("Weights must not be negative!")
+    # Original data as matrix
+    X <- as.matrix(X)
+    Y <- c(Y)
+    if (logit) {
+        Y <- limited_logit(Y)
+    }
+    X_orig <- X
+    Y_orig <- Y
+    # Preprocessing
+    if (normalise) {
+        X <- remove_constant_columns(X)
+        X <- scale_robust(X)
+        Y <- if (logit) {
+            scale_identity(Y)
+        } else {
+            scale_robust(Y)
+        }
+    }
+    if (intercept) {
+        X <- add_intercept_column(X)
+    }
+    # Explanations
+    if (!is.null(x)) {
+        if (intercept) stop("Explanations cannot have intercepts")
+        if (is.null(y)) {
+            # x is an index
+            y_orig <- Y_orig[[x]]
+            x_orig <- X_orig[x, ]
+            y <- Y[[x]]
+            x <- X[x, ]
+        } else {
+            if (logit) y <- limited_logit(y)
+            x_orig <- x
+            y_orig <- y
+            if (normalise) {
+                x <- scale_same(x, X)
+                y <- scale_same(y, Y)
+            }
+        }
+        # Localise
+        X <- sweep(X, 2, x)
+        Y <- Y - y
+    } else {
+        x_orig <- y_orig <- x <- y <- NULL
+    }
+    auto_named_list(X_orig, Y_orig, X, Y, x_orig, y_orig, x, y)
+}
+
 #' Create a result object for SLISE that is similar to other regression method results
 #'
 #' @param alpha linear model
@@ -352,9 +342,8 @@ slise.explain_comb <- function(X, Y, epsilon, x, y = NULL, ..., variables = 4) {
 #' @param logit has the target been logit-transformed (default: FALSE)
 #' @param x explained item x (default: NULL)
 #' @param y explained item y (default: NULL)
-#' @param ... other variables to add to the SLISE object
 #'
-#' @return list(coefficients=unscale(alpha), X, Y, scaled=data, lambda1, lambda2, alpha, subset=[r_i<epsilon], value=loss, epsilon, loss, weight, ...)
+#' @return object with SLISE results
 #'
 slise.object <- function(alpha,
                          X,
@@ -366,10 +355,23 @@ slise.object <- function(alpha,
                          intercept = FALSE,
                          logit = FALSE,
                          x = NULL,
-                         y = NULL,
-                         ...) {
+                         y = NULL) {
+    if (!is.null(x)) {
+        if (intercept) {
+            alpha[1] <- y - sum(x * alpha[-1])
+        } else {
+            alpha <- c(y - sum(x * alpha), alpha)
+            intercept <- TRUE
+        }
+        impact <- c(1, x) * alpha
+    } else {
+        impact <- NULL
+    }
+    if (intercept && length(alpha) == ncol(X)) {
+        X <- remove_intercept_column(X)
+    }
     var_names <- colnames(X)
-    if (length(var_names) == 0 && is.null(var_names)) {
+    if (length(var_names) == 0 || is.null(var_names)) {
         var_names <- paste(seq_len(ncol(X)))
     }
     if (intercept) {
@@ -380,14 +382,56 @@ slise.object <- function(alpha,
         dist <- (c(X %*% alpha) - Y)^2
     }
     names(alpha) <- var_names
-    mask <- dist <= epsilon^2
-    loss <- loss_sharp_res(alpha, dist, epsilon^2, lambda1, lambda2, weight)
-    structure(list(
-        coefficients = alpha, X = X, Y = Y, lambda1 = lambda1, logit = logit,
-        lambda2 = lambda2, alpha = alpha, subset = mask, value = loss,
-        epsilon = epsilon, loss = loss, weight = weight, intercept = intercept,
-        x = x, y = y, ...
-    ), class = "slise")
+    if (!is.null(impact)) names(impact) <- var_names
+    subset <- dist <= epsilon^2
+    value <- loss <- loss_sharp_res(alpha, dist, epsilon^2, lambda1, lambda2, weight)
+    coefficients <- alpha
+    out <- auto_named_list(
+        coefficients, alpha, subset, value, loss, impact, X, Y, x, y,
+        lambda1, logit, lambda2, epsilon, weight, intercept
+    )
+    structure(out, class = "slise")
+}
+
+#' Turn a `slise.object` result based on normalised data to a `slise.object` result with unnormalised data.
+#' The normalised results are retained, but with a 'normalised_' prefix.
+#'
+#' @param object output from `slise.object`
+#' @param X unnormalised data matrix
+#' @param Y unnormalised response vector
+#' @param x explained item x (default: NULL)
+#' @param y explained item y (default: NULL)
+#'
+#' @return object with SLISE results
+#'
+slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
+    cc <- attr(object$X, "constant_columns")
+    alpha <- unscale_alpha(object$alpha, object$X, object$Y)
+    alpha <- add_constant_columns(alpha, cc + 1)
+    out <- slise.object(
+        alpha = alpha,
+        X = X,
+        Y = Y,
+        epsilon = object$epsilon * attr(object$Y, "scaled:scale"),
+        lambda1 = object$lambda1,
+        lambda2 = object$lambda2,
+        weight = object$weight,
+        intercept = object$intercept,
+        logit = object$logit,
+        x = x,
+        y = y
+    )
+    alpha <- add_constant_columns(object$alpha, cc + 1)
+    out$normalised <- out$normalised_alpha <- out$normalised_coefficients <- alpha
+    if (!is.null(x)) {
+        out$normalised_x <- add_constant_columns(object$x, cc)
+        out$normalised_y <- object$y
+        out$normalised_impact <- add_constant_columns(object$impact, cc + 1)
+    }
+    out$normalised_loss <- object$loss
+    out$normalised_value <- object$value
+    out$normalised_epsilon <- object$epsilon
+    out
 }
 
 #' Predict with a SLISE
