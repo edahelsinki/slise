@@ -1,8 +1,7 @@
 # This script contains the SLISE functions (slise.fit and slise.explain)
 
 
-#' SLISE Regression
-#' Use SLISE for robust regression.
+#' SLISE for robust regression.
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -24,8 +23,6 @@
 #' @export
 #'
 #' @examples
-#' # Assuming data is a data.frame with the first column containing the response
-#' # Further assuming newdata is a similar data.frame with the response missing
 #' X <- matrix(rnorm(32), 8, 4)
 #' Y <- rnorm(8)
 #' model <- slise.fit(X, Y, (max(Y) - min(Y)) * 0.1)
@@ -80,9 +77,53 @@ slise.fit <- function(X,
     out
 }
 
+#' SLISE for robust regression (using a formula).
+#'
+#' It is highly recommended that you normalise the data,
+#' either before using SLISE or by setting normalise = TRUE.
+#'
+#' @param formula formula
+#' @param data data for the formula
+#' @param epsilon Error tolerance
+#' @param lambda1 L1 regularisation coefficient (default: 0)
+#' @param lambda2 L2 regularisation coefficient (default: 0)
+#' @param weight Optional weight vector (default: NULL)
+#' @param normalise Preprocess X and Y by scaling, note that epsilon is not scaled (default: FALSE)
+#' @param initialisation Function that gives the initial alpha and beta, or a list containing the initial alpha and beta (default: slise_initialisation_candidates)
+#' @param ... Other parameters to the optimiser and initialiser
+#' @inheritDotParams graduated_optimisation max_approx beta_max max_iterations debug
+#' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
+#'
+#' @return slise.object
+#'
+#' @export
+#' @importFrom stats model.frame model.matrix model.response
+#'
+#' @examples
+#' data <- data.frame(y = rnorm(8), a = rnorm(8), b = rnorm(8))
+#' model <- slise.formula(y ~ a * b + abs(a), data, 0.1, normalise = TRUE)
+slise.formula <- function(formula,
+                          data,
+                          epsilon,
+                          lambda1 = 0,
+                          lambda2 = 0,
+                          weight = NULL,
+                          normalise = FALSE,
+                          initialisation = slise_initialisation_candidates,
+                          ...) {
+    mf <- model.frame(formula, data)
+    Y <- model.response(mf)
+    X <- model.matrix(mf, data)
+    if (colnames(X)[[1]] == "(Intercept)") {
+        intercept <- TRUE
+        X <- X[, -1, drop = FALSE]
+    } else {
+        intercept <- FALSE
+    }
+    slise.fit(X, Y, epsilon, lambda1, lambda2, weight, intercept, normalise, initialisation, ...)
+}
 
-#' SLISE Black Box Explainer
-#' Use SLISE for explaining predictions made by a black box.
+#' SLISE for explaining Black box models.
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -419,7 +460,7 @@ slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
         lambda1 = object$lambda1,
         lambda2 = object$lambda2,
         weight = object$weight,
-        intercept = object$intercept,
+        intercept = TRUE,
         logit = object$logit,
         x = x,
         y = y

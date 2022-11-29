@@ -22,16 +22,22 @@ test_that("Check SLISE", {
     }
 })
 
-test_that("Check SLISE find", {
-    for (i in c(rep(c(4, 8), 2))) {
-        data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
-        x <- data$X[1, ]
-        y <- data$clean[1]
-        expl1_alpha <- slise.explain_find(data$X, data$Y, 0.03, x, y, lambda1 = 0, variables = i / 2)$coefficients
-        expl2_alpha <- slise.explain_find(data$X, data$Y, 0.03, x, y, lambda1 = 0.1, variables = i / 2)$coefficients
-        expect_equal(sum(expl1_alpha[-1] * x) + expl1_alpha[[1]], y)
-        expect_equal(sum(expl2_alpha[-1] * x) + expl2_alpha[[1]], y)
-    }
+test_that("Check SLISE formula", {
+    data <- data.frame(y = rnorm(8), a = rnorm(8), b = rnorm(8))
+    model <- slise.formula(y ~ a * b + abs(a), data, 0.1, normalise = TRUE)
+    expect_equal(length(model$coefficients), 5)
+    expect_equal(length(model$normalised_coefficients), 5)
+    expect_true(model$intercept)
+    model <- slise.formula(y ~ a * b + abs(a) + 0, data, 0.1, normalise = TRUE)
+    expect_equal(length(model$coefficients), 5)
+    expect_equal(length(model$normalised_coefficients), 4)
+    expect_true(model$intercept)
+    model <- slise.formula(y ~ a * b + abs(a) + 0, data, 0.1, normalise = FALSE, lambda1 = 0.1)
+    expect_equal(length(model$coefficients), 4)
+    expect_false(model$intercept)
+    model <- slise.formula(y ~ poly(a, b, degree = 2), data, 0.1, normalise = FALSE, lambda1 = 0.1)
+    expect_equal(length(model$coefficients), 6)
+    expect_true(model$intercept)
 })
 
 test_that("Check SLISE comb", {
@@ -71,6 +77,7 @@ test_that("Check SLISE unscale", {
         data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
         slise1 <- slise.fit(data$X, data$Y, epsilon = 0.1, lambda1 = 0, normalise = TRUE)
         slise2 <- slise.fit(data$X, data$Y, epsilon = slise1$epsilon, lambda1 = 0)
-        expect_equal(slise1$coefficients, slise2$coefficients, 0.3)
+        expect_gte(mean(slise2$subset) + 1e-4, mean(slise1$subset))
+        expect_gte(slise1$loss + 1e-4, slise2$loss)
     }
 })
