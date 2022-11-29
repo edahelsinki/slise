@@ -15,8 +15,7 @@ slise.object(
   intercept = FALSE,
   logit = FALSE,
   x = NULL,
-  y = NULL,
-  ...
+  y = NULL
 )
 }
 \arguments{
@@ -41,11 +40,9 @@ slise.object(
 \item{x}{explained item x (default: NULL)}
 
 \item{y}{explained item y (default: NULL)}
-
-\item{...}{other variables to add to the SLISE object}
 }
 \value{
-list(coefficients=unscale(alpha), X, Y, scaled=data, lambda1, lambda2, alpha, subset=[r_i<epsilon], value=loss, epsilon, loss, weight, ...)
+object with SLISE results
 }
 \description{
 Create a result object for SLISE that is similar to other regression method results
