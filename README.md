@@ -23,13 +23,7 @@ SLISE can also be used to provide *local model-agnostic explanations* for outcom
 
 ## Installation
 
-First install the `devtools`-package:
-
-```R
-install.packages("devtools")
-```
-
-Then install the `slise` package:
+Using the `devtools`-package (`install.packages("devtools")`) install the `slise` package:
 
 ```R
 devtools::install_github("edahelsinki/slise")
@@ -44,7 +38,7 @@ library(slise)
 
 ## Other Languages
 
-The official Python version can be found [here](https://github.com/edahelsinki/pyslise).
+The official __Python__ version can be found [here](https://github.com/edahelsinki/pyslise).
 
 
 ## Example
@@ -52,8 +46,8 @@ The official Python version can be found [here](https://github.com/edahelsinki/p
 In order to use SLISE you need to have your data in a numerical matrix (or something that can be cast to a matrix), and the response as a numerical vector. Below is an example of SLISE being used for robust regression:
 
 ```R
+library(slise)
 library(ggplot2)
-source("experiments/regression/utils.R")
 set.seed(42)
 
 x <- seq(-1, 1, length.out = 50)
@@ -66,7 +60,7 @@ slise <- slise.fit(x, y, epsilon = 0.5)
 
 plot(slise, title = "", partial = TRUE, size = 2) +
     geom_abline(aes(intercept = ols[1], slope = ols[2], color = "OLS", linetype = "OLS"), size = 2) +
-    scale_color_manual(values = c("#1b9e77", SLISE_ORANGE), name = NULL) +
+    scale_color_manual(values = c("#1b9e77", "#fda411"), name = NULL) +
     scale_linetype_manual(values = 2:1, name = NULL) +
     theme(axis.title.y = element_text(angle = 0, vjust = 0.5), legend.key.size = grid::unit(2, "line")) +
     guides(shape = FALSE, color = "legend", linetype = "legend")
@@ -77,13 +71,13 @@ plot(slise, title = "", partial = TRUE, size = 2) +
 SLISE can also be used to explain predictions from black box models such as convolutional neural networks:
 
 ```R
-devtools::load_all()
-source("experiments/regression/data.R")
+library(slise)
 set.seed(42)
 
-emnist <- data_emnist(10000, digit=2, th = -1)
-slise <- slise.explain(emnist$X, emnist$Y, 0.5, emnist$X[17,], emnist$Y[17], 3, 6)
+source("experiments/explanations/data.R")
+emnist <- data_emnist(digit=2)
 
+slise <- slise.explain(emnist$X, emnist$Y, 0.5, emnist$X[17,], emnist$Y[17], logit=TRUE, lambda1=3, lambda2=6)
 plot(slise, "image", "", c("not 2", "is 2"), plots = 1)
 ```
 ![Explanation Example Plot](docs/ex2.png)
@@ -103,5 +97,4 @@ The following R-packages are optional, but needed for *some* of the built-in vis
 - grid
 - gridExtra
 - reshape2
-- crayon
 - wordcloud
