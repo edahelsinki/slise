@@ -47,7 +47,7 @@ add_constant_columns <- function(x, columns) {
     }
 }
 
-unscale_alpha <- function(alpha, x_center, x_scale, y_center=NULL, y_scale=NULL) {
+unscale_alpha <- function(alpha, x_center, x_scale, y_center = NULL, y_scale = NULL) {
     if (is.null(y_center) && is.null(y_scale)) {
         if (!hasattr(x_scale, "scaled:scale") && !hasattr(x_center, "scaled:scale")) {
             stop("X and Y must have the scaled attributes")
@@ -100,6 +100,30 @@ scale_robust <- function(x, th = .Machine$double.eps) {
     x
 }
 
+#' Unscale a scaled matrix / vector
+#'
+#' @param x the matrix / vector to unscale
+#' @param scaled optional object with "scaled:..." attributes
+#'
+#' @return x unscaled
+#'
+unscale <- function(x, scaled = NULL) {
+    if (is.null(scaled)) {
+        scaled <- x
+    }
+    center <- attr(scaled, "scaled:center")
+    scale <- attr(scaled, "scaled:scale")
+    if (is.null(dim(x))) { # Vector
+        x <- x * scale + center
+    } else { # Matrix
+        x <- sweep(x, 2, scale, `*`)
+        x <- sweep(x, 2, center, `+`)
+    }
+    attr(x, "scaled:center") <- NULL
+    attr(x, "scaled:scale") <- NULL
+    x
+}
+
 
 #' A variant of `scale` that only adds the attributes
 #'
@@ -113,7 +137,7 @@ scale_identity <- function(x) {
     x
 }
 
-scale_same <- function(x, center=NULL, scale=NULL, constant_columns=NULL) {
+scale_same <- function(x, center = NULL, scale = NULL, constant_columns = NULL) {
     if (is.null(center)) {
         return(x)
     }
