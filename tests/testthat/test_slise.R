@@ -69,6 +69,10 @@ test_that("Check SLISE predict", {
         Y3 <- predict(fit1, data$X)
         expect_equal(Y1[1], data$clean[1])
         expect_equal(Y2[2], c(Y2c))
+        expect_equal(expl1$subset, c(abs(predict(expl1, data$X) - data$Y) < expl1$epsilon))
+        expect_equal(expl2$subset, c(abs(predict(expl2, data$X, logit = TRUE) - expl2$Y) < expl2$epsilon))
+        expect_equal(expl3$subset, c(abs(predict(expl3, data$X, logit = TRUE) - expl3$Y) < expl3$epsilon))
+        expect_equal(fit1$subset, c(abs(predict(fit1, data$X) - data$Y) < fit1$epsilon))
     }
 })
 

@@ -95,9 +95,7 @@ slise.fit <- function(X,
 #' @inheritDotParams slise_initialisation_candidates num_init beta_max_init pca_treshold
 #'
 #' @return slise.object
-#'
 #' @export
-#' @importFrom stats model.frame model.matrix model.response
 #'
 #' @examples
 #' data <- data.frame(y = rnorm(8), a = rnorm(8), b = rnorm(8))
@@ -171,13 +169,13 @@ slise.explain <- function(X,
         init <- initialisation
         names(init) <- c("alpha", "beta")
     } else {
-        init <- initialisation(data$X, data$Y, epsilon = epsilon, weight = weight, ...)
+        init <- initialisation(data$X_local, data$Y_local, epsilon = epsilon, weight = weight, ...)
     }
     # Optimisation
     alpha <- graduated_optimisation(
         init$alpha,
-        data$X,
-        data$Y,
+        data$X_local,
+        data$Y_local,
         epsilon = epsilon,
         beta = init$beta,
         lambda1 = lambda1,
@@ -365,12 +363,12 @@ slise.preprocess <- function(X,
             }
         }
         # Localise
-        X <- sweep(X, 2, x)
-        Y <- Y - y
+        X_local <- sweep(X, 2, x)
+        Y_local <- Y - y
     } else {
-        x_orig <- y_orig <- x <- y <- NULL
+        x_orig <- y_orig <- x <- y <- X_local <- Y_local <- NULL
     }
-    auto_named_list(X_orig, Y_orig, X, Y, x_orig, y_orig, x, y)
+    auto_named_list(X_orig, Y_orig, X, Y, x_orig, y_orig, x, y, X_local, Y_local)
 }
 
 #' Create a result object for SLISE that is similar to other regression method results
