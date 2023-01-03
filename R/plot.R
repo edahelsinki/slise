@@ -11,6 +11,7 @@ SLISE_DARKPURPLE <- "#5e3c99"
 #'
 #' @param x The slise object
 #' @param num_vars Minimum number of variables to show without filtering (default: 10)
+#' @param labels Name of y or class labels
 #' @param ... Ignored additional parameters
 #'
 #' @return invisible(x)
@@ -20,7 +21,7 @@ SLISE_DARKPURPLE <- "#5e3c99"
 #' X <- matrix(rnorm(30), 15, 2)
 #' Y <- runif(15, 0, 1)
 #' print(slise.fit(X, Y, epsilon = 0.1))
-print.slise <- function(x, num_vars = 10, ...) {
+print.slise <- function(x, num_vars = 10, labels = NULL, ...) {
     check_package("stringr")
     slise <- x
     if (is.null(slise$x)) {
@@ -68,8 +69,23 @@ print.slise <- function(x, num_vars = 10, ...) {
             length(slise$coefficients)
         ))
     }
+    cat(sprintf("Predicted: %s\n", string_prediction(slise$y, slise$logit, labels)))
     if (slise$logit) {
-        cat(sprintf("Class Balance: %.1f%% <> %.1f%%\n", mean(slise$Y[slise$subset] > 0) * 100, mean(slise$Y[slise$subset] < 0) * 100))
+        if (length(labels) > 1) {
+            cat(sprintf(
+                "Class Balance: %.1f%% %s <> %.1f%% %s\n",
+                mean(slise$Y[slise$subset] < 0) * 100,
+                labels[1],
+                mean(slise$Y[slise$subset] > 0) * 100,
+                labels[2]
+            ))
+        } else {
+            cat(sprintf(
+                "Class Balance: %.1f%% <> %.1f%%\n",
+                mean(slise$Y[slise$subset] < 0) * 100,
+                mean(slise$Y[slise$subset] > 0) * 100
+            ))
+        }
     }
     invisible(slise)
 }
@@ -91,13 +107,43 @@ order_coefficients <- function(slise, hightolow = FALSE, minimum = .Machine$doub
     ord
 }
 
+string_prediction <- function(y, logit = FALSE, labels = NULL) {
+    if (logit) {
+        if (!is.null(labels)) {
+            if (y < 0.0 && length(labels) > 1) {
+                sprintf("%.1f%% %s", (1 - sigmoid(y)) * 100, labels[1])
+            } else {
+                sprintf("%.1f%% %s", sigmoid(y) * 100, labels[2])
+            }
+        } else {
+            sprintf("%.1f%%", sigmoid(y) * 100)
+        }
+    } else {
+        if (!is.null(labels)) {
+            sprintf("%g %s", y, labels[1])
+        } else {
+            sprintf("%g", y)
+        }
+    }
+}
+
+string_title <- function(title = NULL, y = NULL, logit = FALSE, labels = NULL) {
+    if (title == "") {
+        NULL
+    } else if (!is.null(y) && grepl("%s", title)) {
+        sprintf(title, string_prediction(y, logit, labels))
+    } else {
+        title
+    }
+}
+
 summary.slise <- print.slise
 
 #' Plot the robust regression or explanation from slise
 #'
 #' @param x The slise object
 #' @param type The type of plot ("2D", "bar", "distribution", "mnist", "prediction", "wordcloud")
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param ... Other parameters to the plotting functions
 #' @inheritDotParams plot.slise_2d labels partial size
 #' @inheritDotParams plot.slise_bar labels partial size
@@ -158,7 +204,7 @@ plot.slise <- function(x,
 #' Plot the robust regression or explanation from slise in 2D
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The axis labels (default: c("X", "Y") or c("x", "f(x)"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param size The size of the plot elements (default: 2)
@@ -167,7 +213,7 @@ plot.slise <- function(x,
 #' @return ggplot object or plot
 #'
 plot.slise_2d <- function(slise,
-                          title,
+                          title = NULL,
                           labels = NULL,
                           partial = FALSE,
                           size = 2,
@@ -197,9 +243,8 @@ plot.slise_2d <- function(slise,
             labels <- c("x", "f(x)")
         }
     }
-
     gg <- ggplot2::ggplot() +
-        ggplot2::ggtitle(if (is.null(title) || title == "") NULL else title) +
+        ggplot2::ggtitle(string_title(title, slise$y, slise$logit)) +
         ggplot2::theme_bw() +
         ggplot2::xlab(labels[1]) +
         ggplot2::ylab(labels[2]) +
@@ -235,7 +280,7 @@ plot.slise_2d <- function(slise,
             shape = "Explained Point"
         ), size = size * 2)
     } else {
-        gg <- gg + ggplot2::guides(shape = "none", color = "none", linetype = "none")
+        gg <- gg + ggplot2::guides(shape = FALSE, color = FALSE, linetype = FALSE)
     }
     if (partial) {
         gg
@@ -247,7 +292,7 @@ plot.slise_2d <- function(slise,
 #' Plot the robust regression or explanation from slise with distributions
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param signif The number of significant digits to display (default: 3)
@@ -258,7 +303,7 @@ plot.slise_2d <- function(slise,
 #' @importFrom stats predict
 #'
 plot.slise_distribution <- function(slise,
-                                    title,
+                                    title = NULL,
                                     labels = c("Low", "High"),
                                     partial = FALSE,
                                     signif = 3,
@@ -426,19 +471,24 @@ plot.slise_distribution <- function(slise,
     } else {
         check_package("grid")
         check_package("gridExtra")
-        gridExtra::grid.arrange(
-            gg1,
-            gg2,
-            ncol = 2,
-            top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
-        )
+        title <- string_title(title, slise$y, slise$logit, labels)
+        if (is.null(title)) {
+            gridExtra::grid.arrange(gg1, gg2, ncol = 2)
+        } else {
+            gridExtra::grid.arrange(
+                gg1,
+                gg2,
+                ncol = 2,
+                top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
+            )
+        }
     }
 }
 
 #' Plot the robust regression or explanation from slise based on predictions
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The axis labels (default: c("Response", "Count"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param approximation Should the approximation density be added (default: TRUE)
@@ -450,7 +500,7 @@ plot.slise_distribution <- function(slise,
 #' @importFrom stats predict
 #'
 plot.slise_prediction <- function(slise,
-                                  title,
+                                  title = NULL,
                                   labels = c("Response", "Count"),
                                   partial = FALSE,
                                   approximation = TRUE,
@@ -492,7 +542,7 @@ plot.slise_prediction <- function(slise,
             limits = c("Dataset", "Subset", if (approximation) "Approximation" else NULL),
             name = NULL
         ) +
-        ggplot2::ggtitle(if (is.null(title) || title == "") NULL else title) +
+        ggplot2::ggtitle(string_title(title, slise$y, slise$logit)) +
         ggplot2::scale_x_continuous(labels = function(x) {
             if (slise$logit) base::signif(sigmoid(x), signif) else base::signif(x, signif)
         })
@@ -519,7 +569,7 @@ plot.slise_prediction <- function(slise,
 #' Plot the robust regression or explanation from slise as bar plots
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param size The size of the segments (default: 8)
@@ -530,7 +580,7 @@ plot.slise_prediction <- function(slise,
 #' @importFrom stats quantile
 #'
 plot.slise_bar <- function(slise,
-                           title,
+                           title = NULL,
                            labels = c("Low", "High"),
                            partial = FALSE,
                            size = 8,
@@ -679,7 +729,8 @@ plot.slise_bar <- function(slise,
         check_package("grid")
         check_package("gridExtra")
         out$ncol <- length(out)
-        out$top <- grid::textGrob(title, gp = grid::gpar(cex = 1.2))
+        title <- string_title(title, slise$y, slise$logit, labels)
+        if (!is.null(title)) out$top <- grid::textGrob(title, gp = grid::gpar(cex = 1.2))
         do.call(gridExtra::grid.arrange, out)
     }
 }
@@ -687,7 +738,7 @@ plot.slise_bar <- function(slise,
 #' Plot the robust regression or explanation from slise as an image
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param width The width of the image (width * height == ncol(X))
@@ -695,30 +746,34 @@ plot.slise_bar <- function(slise,
 #' @param plots The number of plots to split the explanation into (default: 1)
 #' @param enhance_colours Increse the saturation of the explanation (default: TRUE)
 #' @param ... Ignored parameters
+#' @param breaks Breaks for the countours, see `ggplot2::stat_contour` (default: NULL)
 #'
 #' @return ggplot object(s) or plot
 #'
 plot.slise_mnist <- function(slise,
-                             title,
+                             title = NULL,
                              labels = c("Low", "High"),
                              partial = FALSE,
                              width = floor(sqrt(ncol(slise$X))),
                              height = width,
                              plots = 1,
                              enhance_colours = TRUE,
-                             ...) {
+                             ...,
+                             breaks = NULL) {
     check_package("ggplot2")
     if (is.null(slise$x)) {
         plots <- 1
     }
+    title <- string_title(title, slise$y, slise$logit, labels)
     if (plots == 1) {
         gg <- plot_mnist(
             matrix(slise$coefficients[-1], height, width),
             if (is.null(slise$x)) NULL else matrix(slise$x, height, width),
             labels,
-            enhance_colours = enhance_colours
+            enhance_colours = enhance_colours,
+            breaks = breaks
         ) +
-            ggplot2::ggtitle(if (is.null(title) || title == "") NULL else title)
+            ggplot2::ggtitle(title)
         if (partial) {
             gg
         } else {
@@ -736,7 +791,8 @@ plot.slise_mnist <- function(slise,
             matrix(slise$coefficients[-1], height, width),
             matrix(slise$x, height, width),
             labels,
-            enhance_colours = enhance_colours
+            enhance_colours = enhance_colours,
+            breaks = breaks
         ) +
             ggplot2::ggtitle("Explanation") +
             ggplot2::theme(legend.position = "right")
@@ -745,12 +801,16 @@ plot.slise_mnist <- function(slise,
         } else {
             check_package("grid")
             check_package("gridExtra")
-            gridExtra::grid.arrange(
-                gg1,
-                gg2,
-                ncol = 2,
-                top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
-            )
+            if (is.null(title)) {
+                gridExtra::grid.arrange(gg1, gg2, ncol = 2)
+            } else {
+                gridExtra::grid.arrange(
+                    gg1,
+                    gg2,
+                    ncol = 2,
+                    top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
+                )
+            }
         }
     } else if (plots == 3) {
         gg1 <- plot_mnist(
@@ -767,7 +827,8 @@ plot.slise_mnist <- function(slise,
             matrix(pmin(slise$coefficients[-1], 0), height, width),
             matrix(slise$x, height, width),
             labels,
-            enhance_colours = enhance_colours
+            enhance_colours = enhance_colours,
+            breaks = breaks
         ) +
             ggplot2::ggtitle(paste("Towards", labels[1])) +
             ggplot2::theme(
@@ -778,7 +839,8 @@ plot.slise_mnist <- function(slise,
             matrix(pmax(slise$coefficients[-1], 0), height, width),
             matrix(slise$x, height, width),
             labels,
-            enhance_colours = enhance_colours
+            enhance_colours = enhance_colours,
+            breaks = breaks
         ) +
             ggplot2::ggtitle(paste("Towards", labels[2])) +
             ggplot2::theme(
@@ -790,13 +852,17 @@ plot.slise_mnist <- function(slise,
         } else {
             check_package("grid")
             check_package("gridExtra")
-            gridExtra::grid.arrange(
-                gg1,
-                gg3,
-                gg2,
-                ncol = 3,
-                top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
-            )
+            if (is.null(title)) {
+                gridExtra::grid.arrange(gg1, gg3, gg2, ncol = 3)
+            } else {
+                gridExtra::grid.arrange(
+                    gg1,
+                    gg3,
+                    gg2,
+                    ncol = 3,
+                    top = grid::textGrob(title, gp = grid::gpar(cex = 1.2))
+                )
+            }
         }
     } else {
         stop("Unimplemented number of plots")
@@ -808,7 +874,8 @@ plot_mnist <- function(image,
                        contour = NULL,
                        labels = NULL,
                        colours = c(SLISE_DARKORANGE, "white", SLISE_DARKPURPLE),
-                       enhance_colours = TRUE) {
+                       enhance_colours = TRUE,
+                       breaks = NULL) {
     check_package("reshape2")
     check_package("ggplot2")
     shape <- dim(image)
@@ -870,7 +937,8 @@ plot_mnist <- function(image,
             },
             data = reshape2::melt(contour),
             col = "black",
-            bins = 2
+            bins = 2,
+            breaks = breaks
         )
     }
     gg
@@ -879,7 +947,7 @@ plot_mnist <- function(image,
 #' Plot the robust regression or explanation from slise as a wordcloud
 #'
 #' @param slise The slise object
-#' @param title The title of the plot
+#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param treshold Treshold for ignored value (default: 1e-8)
 #' @param local Only display the words relevant for the explained item (default: TRUE)
@@ -890,7 +958,7 @@ plot_mnist <- function(image,
 #' @importFrom graphics legend
 #'
 plot.slise_wordcloud <- function(slise,
-                                 title,
+                                 title = NULL,
                                  labels = c("Low", "High"),
                                  treshold = 1e-8,
                                  local = TRUE,
@@ -924,5 +992,5 @@ plot.slise_wordcloud <- function(slise,
         adj = 0.5,
         x.intersp = 2
     )
-    title(title)
+    title(string_title(title, slise$y, slise$logit, labels))
 }
