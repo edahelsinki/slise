@@ -4,7 +4,7 @@ source("setup.R")
 test_that("Check data preprocessing", {
     for (i in c(rep(c(4, 8), 2))) {
         data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
-        for(i in 0:7) {
+        for (i in 0:7) {
             expect_equal(
                 c(data$X),
                 c(remove_intercept_column(add_intercept_column(data$X)))
@@ -15,14 +15,12 @@ test_that("Check data preprocessing", {
             expect_equal(c(X[, -3]), c(X2))
             expect_equal(attr(X2, "constant_columns"), 3)
             X3 <- scale_robust(X2)
-            expect_equal(
-                c(X2),
-                c(sweep(sweep(X3, 2, attr(X3, "scaled:scale"), `*`), 2, attr(X3, "scaled:center"), `+`))
-            )
+            expect_equal(X2, unscale(X3))
             expect_equal(X3, scale_same(data$X, X3))
             expect_equal(c(scale_same(X[4, ], X3)), c(X3[4, ]))
             expect_equal(c(scale_same(X[1:3, ], X3)), c(X3[1:3, ]))
             Y2 <- scale_robust(data$Y)
+            expect_equal(data$Y, unscale(Y2))
             ols1 <- .lm.fit(add_intercept_column(X3), Y2)$coefficients
             ols2 <- .lm.fit(add_intercept_column(X2), data$Y)$coefficients
             ols3 <- unscale_alpha(ols1, X3, Y2)

@@ -6,20 +6,21 @@
 \usage{
 \method{plot}{slise_mnist}(
   slise,
-  title,
+  title = NULL,
   labels = c("Low", "High"),
   partial = FALSE,
   width = floor(sqrt(ncol(slise$X))),
   height = width,
   plots = 1,
   enhance_colours = TRUE,
-  ...
+  ...,
+  breaks = NULL
 )
 }
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))}
 
@@ -34,6 +35,8 @@
 \item{enhance_colours}{Increse the saturation of the explanation (default: TRUE)}
 
 \item{...}{Ignored parameters}
+
+\item{breaks}{Breaks for the countours, see `ggplot2::stat_contour` (default: NULL)}
 }
 \value{
 ggplot object(s) or plot

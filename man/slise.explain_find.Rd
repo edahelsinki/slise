@@ -42,7 +42,5 @@ slise.explain_find(
 SLISE object
 }
 \description{
-SLISE Black Box Explainer
-Use SLISE for explaining predictions made by a black box.
-BUT with a binary search for sparsity!
+DEPRECATED: This is a simple binary search, no need for a separate function
 }

@@ -1,12 +1,12 @@
-
-library(slise)
+library(devtools)
+devtools::load_all()
 
 #' Create Synthetic data
 #'
 #' @param n number of items
 #' @param d number of columns
 #' @param num_zero number of irrelevant features
-#' @param epsilon 
+#' @param epsilon
 #' @param rnd_unif fraction of uniform noise
 #' @param rnd_adver fraction of adversarial noise models (list)
 #'

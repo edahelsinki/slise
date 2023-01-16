@@ -2,8 +2,7 @@
 % Please edit documentation in R/slise.R
 \name{slise.fit}
 \alias{slise.fit}
-\title{SLISE Regression
-Use SLISE for robust regression.}
+\title{SLISE for robust regression.}
 \usage{
 slise.fit(
   X,
@@ -50,15 +49,13 @@ slise.fit(
   }}
 }
 \value{
-slise object (coefficients, subset, value, X, Y, lambda1, lambda2, epsilon, scaled, alpha)
+slise.object
 }
 \description{
 It is highly recommended that you normalise the data,
 either before using SLISE or by setting normalise = TRUE.
 }
 \examples{
-# Assuming data is a data.frame with the first column containing the response
-# Further assuming newdata is a similar data.frame with the response missing
 X <- matrix(rnorm(32), 8, 4)
 Y <- rnorm(8)
 model <- slise.fit(X, Y, (max(Y) - min(Y)) * 0.1)

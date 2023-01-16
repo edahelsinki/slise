@@ -19,6 +19,9 @@ test_that("Check print", {
         expl <- slise.explain(data$X, data$Y, 0.2, 3)
         cap <- capture.output(print(expl))[[1]]
         expect_equal(cap, "SLISE Explanation:")
+        expl <- slise.explain(data$X, data$Y, 0.2, 3, normalise = TRUE)
+        cap <- capture.output(print(expl))[[1]]
+        expect_equal(cap, "SLISE Explanation:")
     }
 })
 
