@@ -1,7 +1,7 @@
 # This script contains the SLISE functions (slise.fit and slise.explain)
 
 
-#' SLISE for robust regression.
+#' Use SLISE for robust regression.
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -77,7 +77,7 @@ slise.fit <- function(X,
     out
 }
 
-#' SLISE for robust regression (using a formula).
+#' Use SLISE for robust regression (using a formula).
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -207,7 +207,7 @@ slise.explain <- function(X,
     out
 }
 
-#' SLISE Black Box Explainer
+#' Use SLISE as a Black Box Explainer
 #' Use SLISE for explaining predictions made by a black box.
 #' BUT with a binary search for sparsity!
 #'
@@ -254,7 +254,7 @@ slise.explain_find <- function(..., lambda1 = 5, variables = 4, iters = 10, tres
     }
 }
 
-#' SLISE Black Box Explainer
+#' Use SLISE as a Black Box Explainer
 #' Use SLISE for explaining predictions made by a black box.
 #' BUT with sparsity from a combinatorial search rather than Lasso!
 #'
@@ -296,7 +296,7 @@ slise.explain_comb <- function(X, Y, epsilon, x, y = NULL, ..., variables = 4) {
     expl
 }
 
-#'  Preprocess the data as necessary before running SLISE
+#' Preprocess the data as necessary before running SLISE
 #'
 #' @param X Matrix of independent variables
 #' @param Y Vector of the target variable
@@ -480,7 +480,7 @@ slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
     out
 }
 
-#' Predict with a SLISE
+#' Predict with a SLISE object
 #'
 #' @param object SLISE object
 #' @param newdata data matrix
