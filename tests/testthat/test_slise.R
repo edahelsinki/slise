@@ -78,10 +78,12 @@ test_that("Check SLISE predict", {
 
 test_that("Check SLISE unscale", {
     for (i in c(rep(c(4, 8, 16), 2))) {
-        data <- data_create(i * 30, i, floor(i * 0.5), 0.03, 0.3, 0.3)
-        slise1 <- slise.fit(data$X, data$Y, epsilon = 0.1, lambda1 = 0, normalise = TRUE)
-        slise2 <- slise.fit(data$X, data$Y, epsilon = slise1$epsilon, lambda1 = 0)
-        expect_gte(mean(slise2$subset) + 1e-4, mean(slise1$subset))
-        expect_gte(slise1$loss + 1e-4, slise2$loss)
+        data <- data_create(i * 30, i, floor(i * 0.3), 0.03, 0.3, 0.3)
+        slise1 <- slise.fit(data$X, data$Y, epsilon = 0.1, normalise = TRUE)
+        data2 <- slise.preprocess(data$X, data$Y, 0.1, intercept = TRUE, normalise = TRUE)
+        subset1 <- mean(abs(predict(slise1, data$X) - data$Y) <= slise1$epsilon)
+        subset2 <- mean(abs(data2$X %*% slise1$normalised_alpha - data2$Y) < slise1$normalised_epsilon)
+        expect_equal(subset1, mean(slise1$subset))
+        expect_equal(subset2, mean(slise1$subset))
     }
 })
