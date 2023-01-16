@@ -166,7 +166,7 @@ arma::vec sigmoidc(const arma::vec &x)
     return (1 / (1 + arma::exp(-x)));
 }
 
-arma::vec i_sigmoidc(const arma::vec &x)
+inline arma::vec i_sigmoidc(const arma::vec &x)
 {
     return (1 / (1 + arma::exp(-x)));
 }
@@ -183,7 +183,7 @@ arma::vec log_sigmoidc(const arma::vec &x)
     return res;
 }
 
-arma::vec pmin(const arma::vec &a, const double b)
+inline arma::vec pmin(const arma::vec &a, const double b)
 {
     arma::vec res(a.size());
     for (arma::uword i = 0; i < a.size(); i++)
@@ -194,7 +194,7 @@ arma::vec pmin(const arma::vec &a, const double b)
     return res;
 }
 
-arma::vec pmin_other(const arma::vec &a, const arma::vec &b, const double c)
+inline arma::vec pmin_other(const arma::vec &a, const arma::vec &b, const double c)
 {
     arma::vec res(a.size());
     for (arma::uword i = 0; i < a.size(); i++)
