@@ -4,12 +4,12 @@
 \alias{plot.slise_2d}
 \title{Plot the robust regression or explanation from slise in 2D}
 \usage{
-\method{plot}{slise_2d}(slise, title, labels = NULL, partial = FALSE, size = 2, ...)
+\method{plot}{slise_2d}(slise, title = NULL, labels = NULL, partial = FALSE, size = 2, ...)
 }
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The axis labels (default: c("X", "Y") or c("x", "f(x)"))}
 

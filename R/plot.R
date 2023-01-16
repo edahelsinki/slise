@@ -143,7 +143,7 @@ summary.slise <- print.slise
 #'
 #' @param x The slise object
 #' @param type The type of plot ("2D", "bar", "distribution", "mnist", "prediction", "wordcloud")
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param ... Other parameters to the plotting functions
 #' @inheritDotParams plot.slise_2d labels partial size
 #' @inheritDotParams plot.slise_bar labels partial size
@@ -204,7 +204,7 @@ plot.slise <- function(x,
 #' Plot the robust regression or explanation from slise in 2D
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The axis labels (default: c("X", "Y") or c("x", "f(x)"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param size The size of the plot elements (default: 2)
@@ -292,7 +292,7 @@ plot.slise_2d <- function(slise,
 #' Plot the robust regression or explanation from slise with distributions
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param signif The number of significant digits to display (default: 3)
@@ -488,7 +488,7 @@ plot.slise_distribution <- function(slise,
 #' Plot the robust regression or explanation from slise based on predictions
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The axis labels (default: c("Response", "Count"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param approximation Should the approximation density be added (default: TRUE)
@@ -569,7 +569,7 @@ plot.slise_prediction <- function(slise,
 #' Plot the robust regression or explanation from slise as bar plots
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param size The size of the segments (default: 8)
@@ -738,7 +738,7 @@ plot.slise_bar <- function(slise,
 #' Plot the robust regression or explanation from slise as an image
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param partial Should the raw ggplot2 objects be returned instead of directly plotting (default: FALSE)
 #' @param width The width of the image (width * height == ncol(X))
@@ -947,7 +947,7 @@ plot_mnist <- function(image,
 #' Plot the robust regression or explanation from slise as a wordcloud
 #'
 #' @param slise The slise object
-#' @param title The title of the plot (may include a `%s`, which will be replaced by the prediction)
+#' @param title The title of the plot (may include a `\%s`, which will be replaced by the prediction)
 #' @param labels The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))
 #' @param treshold Treshold for ignored value (default: 1e-8)
 #' @param local Only display the words relevant for the explained item (default: TRUE)

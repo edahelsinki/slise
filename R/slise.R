@@ -97,6 +97,10 @@ slise.fit <- function(X,
 #' @return slise.object
 #' @export
 #'
+#' @importFrom stats model.frame
+#' @importFrom stats model.response
+#' @importFrom stats model.matrix
+#'
 #' @examples
 #' data <- data.frame(y = rnorm(8), a = rnorm(8), b = rnorm(8))
 #' model <- slise.formula(y ~ a * b + abs(a), data, 0.1, normalise = TRUE)

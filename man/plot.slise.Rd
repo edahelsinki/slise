@@ -11,7 +11,7 @@
 
 \item{type}{The type of plot ("2D", "bar", "distribution", "mnist", "prediction", "wordcloud")}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{...}{
   Arguments passed on to \code{\link[=plot.slise_2d]{plot.slise_2d}}, \code{\link[=plot.slise_bar]{plot.slise_bar}}, \code{\link[=plot.slise_distribution]{plot.slise_distribution}}, \code{\link[=plot.slise_mnist]{plot.slise_mnist}}, \code{\link[=plot.slise_prediction]{plot.slise_prediction}}, \code{\link[=plot.slise_wordcloud]{plot.slise_wordcloud}}

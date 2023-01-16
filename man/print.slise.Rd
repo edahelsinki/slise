@@ -4,12 +4,14 @@
 \alias{print.slise}
 \title{Print the robust regression or explanation from slise}
 \usage{
-\method{print}{slise}(x, num_vars = 10, ...)
+\method{print}{slise}(x, num_vars = 10, labels = NULL, ...)
 }
 \arguments{
 \item{x}{The slise object}
 
 \item{num_vars}{Minimum number of variables to show without filtering (default: 10)}
+
+\item{labels}{Name of y or class labels}
 
 \item{...}{Ignored additional parameters}
 }

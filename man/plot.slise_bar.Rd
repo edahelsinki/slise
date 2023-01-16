@@ -4,12 +4,19 @@
 \alias{plot.slise_bar}
 \title{Plot the robust regression or explanation from slise as bar plots}
 \usage{
-\method{plot}{slise_bar}(slise, title, labels = c("Low", "High"), partial = FALSE, size = 8, ...)
+\method{plot}{slise_bar}(
+  slise,
+  title = NULL,
+  labels = c("Low", "High"),
+  partial = FALSE,
+  size = 8,
+  ...
+)
 }
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))}
 

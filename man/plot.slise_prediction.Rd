@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{slise_prediction}(
   slise,
-  title,
+  title = NULL,
   labels = c("Response", "Count"),
   partial = FALSE,
   approximation = TRUE,
@@ -17,7 +17,7 @@
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The axis labels (default: c("Response", "Count"))}
 

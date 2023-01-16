@@ -4,12 +4,19 @@
 \alias{plot.slise_distribution}
 \title{Plot the robust regression or explanation from slise with distributions}
 \usage{
-\method{plot}{slise_distribution}(slise, title, labels = c("Low", "High"), partial = FALSE, signif = 3, ...)
+\method{plot}{slise_distribution}(
+  slise,
+  title = NULL,
+  labels = c("Low", "High"),
+  partial = FALSE,
+  signif = 3,
+  ...
+)
 }
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))}
 

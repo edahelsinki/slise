@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{slise_wordcloud}(
   slise,
-  title,
+  title = NULL,
   labels = c("Low", "High"),
   treshold = 1e-08,
   local = TRUE,
@@ -16,7 +16,7 @@
 \arguments{
 \item{slise}{The slise object}
 
-\item{title}{The title of the plot}
+\item{title}{The title of the plot (may include a `\%s`, which will be replaced by the prediction)}
 
 \item{labels}{The class labels (vector with two strings: c(y_low, y_high), default: c("Low", "High"))}
 
