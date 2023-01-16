@@ -1,5 +1,10 @@
 # SLISE - Sparse Linear Subset Explanations
 
+[![Version](https://img.shields.io/github/r-package/v/edahelsinki/slise?label=version)](https://edahelsinki.github.io/slise)
+[![Documentation](https://github.com/edahelsinki/slise/actions/workflows/pkgdown.yml/badge.svg)](https://edahelsinki.github.io/slise)
+[![Tests](https://github.com/edahelsinki/slise/actions/workflows/r_check.yml/badge.svg)](https://github.com/edahelsinki/slise/actions/workflows/r_check.yml)
+[![License: MIT](https://img.shields.io/github/license/edahelsinki/slise)](https://github.com/edahelsinki/slise/blob/master/LICENSE)
+
 R implementation of the SLISE algorithm. The SLISE algorithm can be used for both robust regression and to explain outcomes from black box models. 
 For more details see the [original paper](https://rdcu.be/bVbda) or the [robust regression paper](https://rdcu.be/cFRHD). 
 Alternatively for a more informal overview see the [presentation](https://github.com/edahelsinki/slise/raw/master/pdfs/presentation.pdf), or the [poster](https://github.com/edahelsinki/slise/raw/master/pdfs/poster.pdf).
