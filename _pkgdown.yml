@@ -1,0 +1,29 @@
+url: https://edahelsinki.github.io/slise
+template:
+  bootstrap: 5
+  bootswatch: pulse
+  theme: breeze-light
+  bslib:
+    pkgdown-nav-height: 100px
+navbar:
+  bg: primary
+  structure:
+    left:  [reference]
+    right: [search, github]
+home:
+  name: SLISE
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+  links:
+  - text: Original paper
+    href: https://rdcu.be/bVbda
+  - text: Robust regression paper
+    href: https://rdcu.be/cFRHD
+  - text: Poster
+    href: https://github.com/edahelsinki/slise/raw/master/pdfs/poster.pdf
+  - text: Presentation
+    href: https://github.com/edahelsinki/slise/raw/master/pdfs/presentation.pdf
+  - text: Code reference
+    href: reference/index.html
+  - text: Python implementation
+    href: https://edahelsinki.github.io/pyslise

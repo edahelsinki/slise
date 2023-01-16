@@ -10,3 +10,7 @@
 ^\.lintr$
 ^CITATIONS.bib$
 ^\.github$
+^_pkgdown\.yml$
+^pkgdown$
+^doc$
+^pdfs$
