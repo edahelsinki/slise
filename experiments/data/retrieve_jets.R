@@ -138,7 +138,7 @@ if (sys.nframe() == 0L) {
     cat("Predicting images\n")
     predicted_img <- predict(model_img, data_img)
     cat("Saving image data\n")
-    saveRDS(list(X = data_img, Y = predicted_img, R = label_img), path_img_rds, compress = TRUE)
+    saveRDS(list(X = data_img, Y = predicted_img, R = label_img), path_img_rds, compress = "xz")
 
     cat("Training tabular model\n")
     model_tab <- jets_train_model_tab(data_tab, label_tab)
@@ -147,5 +147,5 @@ if (sys.nframe() == 0L) {
     cat("Predicting jets\n")
     predicted_tab <- predict(model_tab, data_tab)
     cat("Saving tabular data\n")
-    saveRDS(list(X = data_tab, Y = predicted_tab, R = label_tab), path_tab_rds, compress = TRUE)
+    saveRDS(list(X = data_tab, Y = predicted_tab, R = label_tab), path_tab_rds, compress = "xz")
 }

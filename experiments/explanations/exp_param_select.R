@@ -60,7 +60,7 @@ cv <- function(X, Y, data, k = 10, l2 = 0.0, path = NULL, verbose = TRUE,
             }
         }
         if (!is.null(path) && (i == nrow(df) || proc.time()[3] - time > 120)) {
-            saveRDS(df[1:i, ], path)
+            saveRDS(df[1:i, ], path, compress = "xz")
             time <- proc.time()[3]
         }
     }

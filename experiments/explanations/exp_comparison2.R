@@ -435,7 +435,7 @@ if (sys.nframe() == 0L) {
                 cat(sprintf("[comparison2] Init %3d: %s %s\n", job_index, params$name, params$method))
                 for (i in 1:iterations) {
                     if (proc.time()[3] - time2 > 120) {
-                        saveRDS(list(df1 = df1, df2 = df2), file)
+                        saveRDS(list(df1 = df1, df2 = df2), file, compress = "xz")
                         time2 <- proc.time()[3]
                     }
                     data <- get_index(params)
@@ -444,7 +444,7 @@ if (sys.nframe() == 0L) {
                     df1 <- rbind(df1, res$df1)
                     df2 <- rbind(df2, res$df2)
                 }
-                saveRDS(list(df1 = df1, df2 = df2), file)
+                saveRDS(list(df1 = df1, df2 = df2), file, compress = "xz")
                 time <- proc.time()[3] - time
                 cat(sprintf("[comparison2] Done %3d: %.1f seconds\n", job_index, time))
             } else {

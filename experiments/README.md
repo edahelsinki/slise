@@ -1,6 +1,8 @@
-# Experiments
+# Experiments for the explanations paper
 
 The __explanations__ directory contains explanation experiments and the __data__ directory contains the data preprocessing (and model training) scripts.
+
+Supplements containing all pre-processed data and results can be downloaded from [here](https://github.com/edahelsinki/slise/releases/download/v2.1.0/explanations_supplement.zip).
 
 ## Dependencies
 
