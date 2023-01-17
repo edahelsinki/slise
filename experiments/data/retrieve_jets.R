@@ -11,33 +11,31 @@
 ## --------------------------------------------------
 
 library(keras)
+library(tensorflow)
 
 jets_train_model_img <- function(X, Y, smoothing = 0.2, epochs = 5) {
-    # # Label Smoothing
-    Yc <- to_categorical(Y)
-    Yc <- Yc * (1 - smoothing) + smoothing / ncol(Y)
     # Neural Network
     model <- keras_model_sequential()
     model %>% # 18 > 14 > 7 > 5 > 3 > Dense
         layer_reshape(list(18, 18, 1), list(18 * 18)) %>%
-        layer_locally_connected_2d(filters = 16, kernel_size=5, activation = "relu", padding="valid") %>%
+        layer_locally_connected_2d(filters = 16, kernel_size = 5, activation = "relu", padding = "valid") %>%
         layer_batch_normalization() %>%
         layer_max_pooling_2d() %>%
-        layer_locally_connected_2d(filters = 32, kernel_size=3, activation = "relu", padding="valid") %>%
+        layer_locally_connected_2d(filters = 32, kernel_size = 3, activation = "relu", padding = "valid") %>%
         layer_batch_normalization() %>%
-        layer_locally_connected_2d(filters = 16, kernel_size=3, activation = "relu", padding="valid") %>%
+        layer_locally_connected_2d(filters = 16, kernel_size = 3, activation = "relu", padding = "valid") %>%
         layer_flatten(input_shape = c(3, 3)) %>%
         layer_dense(units = 32, activation = "relu") %>%
-        layer_dense(units = 2, activation = "sigmoid")
+        layer_dense(units = 1, activation = "sigmoid")
     model %>% compile(
         optimizer = "adam",
-        loss = "categorical_crossentropy",
+        loss = tf$losses$BinaryCrossentropy(label_smoothing = smoothing),
         metrics = c("accuracy")
     )
     # Train
     model %>% fit(
         X,
-        Yc,
+        Y,
         epochs = epochs,
         batch_size = 128,
         validation_split = 0.2,
@@ -47,29 +45,26 @@ jets_train_model_img <- function(X, Y, smoothing = 0.2, epochs = 5) {
 }
 
 jets_train_model_tab <- function(X, Y, smoothing = 0.2, epochs = 5) {
-    # # Label Smoothing
-    Yc <- to_categorical(Y)
-    Yc <- Yc * (1 - smoothing) + smoothing / ncol(Y)
     # Neural Network
     model <- keras_model_sequential()
     model %>%
-        layer_batch_normalization(input_shape = 4) %>%
+        layer_batch_normalization(input_shape = as.integer(ncol(X))) %>%
         layer_dense(units = 16, activation = "relu") %>%
         layer_batch_normalization() %>%
         layer_dense(units = 32, activation = "relu") %>%
         layer_batch_normalization() %>%
         layer_dense(units = 16, activation = "relu") %>%
         layer_batch_normalization() %>%
-        layer_dense(units = 2, activation = "sigmoid")
+        layer_dense(units = 1, activation = "sigmoid")
     model %>% compile(
         optimizer = "adam",
-        loss = "categorical_crossentropy",
+        loss = tf$losses$BinaryCrossentropy(label_smoothing = smoothing),
         metrics = c("accuracy")
     )
     # Train
     model %>% fit(
         X,
-        Yc,
+        Y,
         epochs = epochs,
         batch_size = 128,
         validation_split = 0.2,
@@ -88,7 +83,7 @@ jets_get_data_tab <- function() {
 
 
 # This is only run when called from Rscript
-if (sys.nframe() == 0L | T) {
+if (sys.nframe() == 0L) {
 
     ## --------------------------------------------------
     ## Define Paths
@@ -143,7 +138,7 @@ if (sys.nframe() == 0L | T) {
     cat("Predicting images\n")
     predicted_img <- predict(model_img, data_img)
     cat("Saving image data\n")
-    saveRDS(list(X = data_img, Y = predicted_img[, 2], R = label_img), path_img_rds, compress = "xz")
+    saveRDS(list(X = data_img, Y = predicted_img, R = label_img), path_img_rds, compress = TRUE)
 
     cat("Training tabular model\n")
     model_tab <- jets_train_model_tab(data_tab, label_tab)
@@ -152,5 +147,5 @@ if (sys.nframe() == 0L | T) {
     cat("Predicting jets\n")
     predicted_tab <- predict(model_tab, data_tab)
     cat("Saving tabular data\n")
-    saveRDS(list(X = data_tab, Y = predicted_tab[, 2], R = label_tab), path_tab_rds, compress = "xz")
+    saveRDS(list(X = data_tab, Y = predicted_tab, R = label_tab), path_tab_rds, compress = TRUE)
 }

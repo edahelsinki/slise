@@ -46,7 +46,7 @@ exp_internal <- function(dir = "experiments/results") {
     cairo_pdf(file.path(dir, "internal_emnist_colour.pdf"), 1.0 * 9, 0.35 * 9)
     grid.draw(plot_internal(expl, nodes, int$image[selected, ], 6, bw = FALSE))
     dev.off()
-    cairo_pdf(file.path(dir, "internal_emnist_gray.pdf"), 1.0 * 9, 0.35 * 9)
+    cairo_pdf(file.path(dir, "internal_emnist_grey.pdf"), 1.0 * 9, 0.35 * 9)
     grid.draw(plot_internal(expl, nodes, int$image[selected, ], 6, bw = TRUE))
     dev.off()
 }

@@ -123,6 +123,7 @@ if (sys.nframe() == 0L) {
     # This is the easiest way to get k_gradient to work
     suppressPackageStartupMessages(library(tensorflow))
     tf$compat$v1$disable_eager_execution()
+    q <- tf$add(1, 2) # Display all TF messages now
 
     ## --------------------------------------------------
     ## Command-line arguments
@@ -164,6 +165,7 @@ if (sys.nframe() == 0L) {
     rm(emnist, train, test)
 
     if (!file.exists(path_test)) {
+        print("Saving Data...\n")
         saveRDS(list(image = test_image, label = test_label), path_test, compress = "xz")
     }
 
@@ -174,11 +176,14 @@ if (sys.nframe() == 0L) {
         print("Training Model...\n")
         model <- emnist_model()
         emnist_train(model, train_image, train_label)
+        print("Saving Model...\n")
         save_model_hdf5(model, path_model)
     } else {
+        print("Loading Model...\n")
         model <- load_model_hdf5(path_model)
     }
     if (!file.exists(path_pred)) {
+        print("Saving Predictions...\n")
         predictions <- predict(model, test_image)
         saveRDS(predictions, path_pred, compress = "xz")
     }
@@ -195,6 +200,7 @@ if (sys.nframe() == 0L) {
         nodes <- lapply(1:ncol(internal), function(i) {
             activation_maximisation(model, test_image[selected, , drop = FALSE], i)
         })
+        print("Saving AMs...\n")
         saveRDS(list(internal = internal, nodes = nodes, selected = selected), path_internal, compress = "xz")
     }
 }

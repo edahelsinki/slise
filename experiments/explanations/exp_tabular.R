@@ -15,15 +15,15 @@ exp_mtcars <- function() {
     # This dataset so small that the explanations are relatively unstable
     cat("mtcars\n")
     set.seed(42)
-    data <- data_mtcars("lm")
-    cat("Linear Model MSE: ", mean((data$Y - data$R)^2), "\n")
+    # data <- data_mtcars("lm")
+    # cat("Linear Model MSE: ", mean((data$Y - data$R)^2), "\n")
     data <- data_mtcars("rf")
     cat("Random Forest MSE:", mean((data$Y - data$R)^2), "\n")
-    expl <- slise.explain(data$X, data$Y, 0.15, 1, lambda1 = 0.1, normalise = TRUE)
+    expl <- slise.explain(data$X, data$Y, data$epsilon, 1, lambda1 = data$lambda1, normalise = TRUE)
     print(expl, 20)
     cat("Random Forest Importance\n")
-    imp <- randomForest::importance(data$model)
-    print(imp[order(-abs(expl$normalised[-1])),])
+    imp <- randomForest::importance(data$model_obj)
+    print(imp[order(-abs(expl$normalised[-1])), ])
     # plot(ne, "dist")
 }
 

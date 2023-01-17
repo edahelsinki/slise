@@ -14,12 +14,12 @@ library(grid)
 library(keras)
 
 # The main EMNIST explanation
-exp_primary <- function(dir = "experiments/results", lambda = 2) {
+exp_primary <- function(dir = "experiments/results") {
     set.seed(42)
-    cat("__EMNIST primary__\n")
+    cat("__EMNIST Primary__\n")
     data <- data_emnist(2)
     selected <- 9 # which(data$R == 2)[8]
-    expl <- slise.explain(data$X, data$Y, epsilon = 0.5, x = selected, lambda1 = lambda, logit = TRUE)
+    expl <- slise.explain(data$X, data$Y, epsilon = data$epsilon, x = selected, lambda1 = data$lambda1, lambda2 = data$lambda2, logit = TRUE)
     cairo_pdf(file.path(dir, "explanation_emnist_digit.pdf"), 0.9 * 9, 0.35 * 9)
     grid.draw(plot(expl, type = "image", plots = 3, labels = c("not 2", "2")))
     dev.off()
@@ -51,18 +51,6 @@ exp_primary <- function(dir = "experiments/results", lambda = 2) {
     dev.off()
 }
 
-# With less sparsity
-exp_dense <- function(dir = "experiments/results") {
-    set.seed(42)
-    cat("__EMNIST with L2__\n")
-    data <- data_emnist(2)
-    selected <- 9 # which(data$R == 2)[8]
-    expl <- slise.explain(data$X, data$Y, epsilon = 0.5, x = selected, lambda1 = 3, lambda2 = 6, logit = TRUE)
-    cairo_pdf(file.path(dir, "explanation_emnist_digit2.pdf"), 0.9 * 9, 0.35 * 9)
-    grid.draw(plot(expl, type = "image", plots = 3, labels = c("not 2", "2")) + theme_image())
-    dev.off()
-}
-
 # Try different parameter values in a grid
 exp_parameters <- function(dir = "experiments/results") {
     set.seed(42)
@@ -75,7 +63,7 @@ exp_parameters <- function(dir = "experiments/results") {
     selected <- 9 # which(data$R == 2)[8]
     expls <- mapply(function(e, l) {
         cat(sprintf("  epsilon = %.2f  lambda = %.1f\n", e, l))
-        slise.explain(data$X, data$Y, e, selected, lambda1 = l, logit = TRUE)
+        slise.explain(data$X, data$Y, e, selected, lambda1 = l, lambda2 = l * 2, logit = TRUE)
     }, pars$epsilon, pars$lambda, SIMPLIFY = FALSE)
     models <- do.call(rbind, lapply(expls, function(e) e$alpha[-1]))
     models <- sweep(models, 1, apply(abs(models), 1, max), `/`)
@@ -105,7 +93,7 @@ exp_parameters <- function(dir = "experiments/results") {
     dev.off()
 }
 
-exp_investigate <- function(dir = "experiments/results", lambda = 5) {
+exp_investigate <- function(dir = "experiments/results") {
     set.seed(42)
     cat("__EMNIST 2-3__\n")
     data <- data_emnist(2, balance = FALSE)
@@ -114,7 +102,7 @@ exp_investigate <- function(dir = "experiments/results", lambda = 5) {
     data$Y <- data$Y[data$mask]
     data$X <- data$X[data$mask, ]
     selected <- which(data$mask == 27673) # Same as the 9:th from above
-    expl <- slise.explain(data$X, data$Y, epsilon = 0.5, x = selected, lambda1 = lambda, logit = TRUE)
+    expl <- slise.explain(data$X, data$Y, epsilon = data$epsilon, x = selected, lambda1 = data$lambda, lambda2 = data$lambda2, logit = TRUE)
     cairo_pdf(file.path(dir, "explanation_emnist_other.pdf"), 0.9 * 9, 0.35 * 9)
     plot(expl, type = "image", plots = 3, labels = c("3", "2")) + theme_image()
     dev.off()
@@ -223,43 +211,46 @@ plot_scatter <- function(slise, data = NULL, lineup = NULL, width = 28, height =
 }
 
 exp_new_image <- function(dir = "experiments/results") {
+    cat("__EMNIST New image__\n")
     set.seed(42)
     digit <- 2
     # new_image <- matrix(1 - png::readPNG("experiments/data/new2.png")[, , 1], 1, 784)
     new_image <- matrix(c(
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     ), 1, 784)
-    model <- keras::load_model_hdf5("experiments/data/emnist_model.hdf5")
-    pred <- predict(model, new_image)
-    data <- data_emnist(digit)
+    data <- data_emnist(digit, pred_fn = TRUE)
+    pred <- data$pred_fn(new_image)
     expl <- slise.explain(
         data$X,
         data$Y,
-        epsilon = 0.5,
+        epsilon = data$epsilon,
         x = new_image,
-        y = pred[digit + 1],
-        lambda1 = 2,
-        lambda2 = 0.1,
+        y = pred[2],
+        lambda1 = data$lambda1,
+        lambda2 = data$lambda2,
         logit = TRUE
     )
-    names(pred) <- paste(0:9)
-    cat("Predictions:\n")
-    print(pred)
     cairo_pdf(file.path(dir, "explanation_emnist_new.pdf"), 0.9 * 9, 0.35 * 9)
     grid.draw(plot(
         expl,
         "mnist",
         plots = 3,
-        title = sprintf("Predicted %.1f%% likely to be a %s", pred[digit + 1] * 100, digit),
-        labels = c("not 2", "2")
+        title = sprintf("Predicted %.1f%% likely to be a %s", pred[2] * 100, digit),
+        labels = paste0(c("not ", ""), digit)
     ))
     dev.off()
+    # Get all the probabilities
+    model <- keras::load_model_hdf5(file.path("experiments", "data", "emnist_model.hdf5"))
+    y <- predict(model, new_image)
+    colnames(y) <- 0:9
+    cat("Prediction:\n")
+    print(y)
 }
 
 
 if (sys.nframe() == 0L) { # Only run with Rscript
     exp_primary()
-    exp_parameters()
-    exp_investigate()
+    # exp_parameters()
+    # exp_investigate()
     exp_new_image()
 }

@@ -29,13 +29,17 @@ void RootParser::Loop()
    fChain->SetBranchStatus("PF_pT", 1);
    fChain->SetBranchStatus("PF_dR", 1);
    fChain->SetBranchStatus("PF_dTheta", 1);
+   fChain->SetBranchStatus("jetChargedMult", 1);
+   fChain->SetBranchStatus("jetNeutralMult", 1);
+   fChain->SetBranchStatus("jetGirth", 1);
 
    if (fChain == 0)
       return;
 
    std::ofstream csvfile;
    csvfile.open("jets.csv");
-   csvfile << "isPhysUDS, jetPt, QG_ptD, QG_axis2, QG_mult" << std::endl;
+   csvfile << "isPhysUDS, jetPt, jetGirth, jetChargedMult, jetNeutralMult, QG_ptD, QG_axis2, QG_mult" << std::endl;
+   // csvfile << "isPhysUDS, jetPt, QG_ptD, QG_axis2, QG_mult" << std::endl;
 
    std::ofstream imgfile;
    imgfile.open("jets_img.csv");
@@ -68,7 +72,7 @@ void RootParser::Loop()
       if (isnan(QG_ptD))
          continue;
 
-      csvfile << isPhysUDS << "," << jetPt << "," << QG_ptD << "," << QG_axis2 << "," << QG_mult << std::endl;
+      csvfile << isPhysUDS << "," << jetPt << "," << jetGirth << "," << jetChargedMult << "," << jetNeutralMult << "," << QG_ptD << "," << QG_axis2 << "," << QG_mult << std::endl;
       imgfile << isPhysUDS;
       Float_t image[IMAGE_SIZE][IMAGE_SIZE] = {};
       for (size_t i = 0; i < nPF; i++)
