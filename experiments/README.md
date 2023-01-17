@@ -2,6 +2,8 @@
 
 This directory contains the experiments used in the paper.
 
+The supplements for the paper, which include some data, can be found [here](https://github.com/edahelsinki/slise/releases/download/v1.0/supplement.zip).
+
 
 ## Files
 
