@@ -29,14 +29,14 @@ print.slise <- function(x, num_vars = 10, labels = NULL, ...) {
     } else {
         cat("SLISE Explanation:\n")
     }
-    # Table of item, model and impact
+    # Table of item, model and terms
     data <- rbind(
         `Explained Item` = c(slise$y, slise$x),
         `Linear Model` = slise$coefficients,
-        `Prediction Impact` = slise$impact,
+        `Prediction Term` = slise$terms,
         `Normalised Item` = c(slise$normalised_y, slise$normalised_x),
         `Normalised Model` = slise$normalised,
-        `Normalised Impact` = slise$normalised_impact
+        `Normalised Term` = slise$normalised_terms
     )
     colnames(data) <- names(slise$coefficients)
     if (!is.null(slise$x)) {
@@ -406,25 +406,25 @@ plot.slise_distribution <- function(slise,
             ))
         }
     }
-    if (!is.null(slise$impact)) {
-        mv <- max(abs(slise$impact[-1][ord]))
+    if (!is.null(slise$terms)) {
+        mv <- max(abs(slise$terms[-1][ord]))
         df <- rbind(df, data.frame(
             l = variable_names[-1][ord],
-            x = slise$impact[-1][ord] / mv,
-            v = slise$impact[-1][ord],
-            r = "Prediction\nImpact"
+            x = slise$terms[-1][ord] / mv,
+            v = slise$terms[-1][ord],
+            r = "Prediction\nTerm"
         ))
-        if (!is.null(slise$normalised_impact)) {
-            mv <- max(abs(slise$normalised_impact[-1][ord]))
+        if (!is.null(slise$normalised_terms)) {
+            mv <- max(abs(slise$normalised_terms[-1][ord]))
             df <- rbind(df, data.frame(
                 l = variable_names[-1][ord],
-                x = slise$normalised_impact[-1][ord] / mv,
-                v = slise$normalised_impact[-1][ord],
-                r = "Normalised\nImpact"
+                x = slise$normalised_terms[-1][ord] / mv,
+                v = slise$normalised_terms[-1][ord],
+                r = "Normalised\nTerm"
             ))
         }
     }
-    df$r <- factor(df$r, c("Normalised\nImpact", "Prediction\nImpact", "Normalised\nModel", "Coefficients"))
+    df$r <- factor(df$r, c("Normalised\nTerm", "Prediction\nTerm", "Normalised\nModel", "Coefficients"))
     df$l <- factor(df$l, df$l[seq_along(ord1)])
     if (nrow(df) <= length(ord1)) {
         df$f <- labels[(df$x > 0) + 1]

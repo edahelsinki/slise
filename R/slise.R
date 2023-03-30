@@ -409,9 +409,9 @@ slise.object <- function(alpha,
             alpha <- c(y - sum(x * alpha), alpha)
             intercept <- TRUE
         }
-        impact <- c(1, x) * alpha
+        terms <- c(1, x) * alpha
     } else {
-        impact <- NULL
+        terms <- NULL
     }
     if (intercept && length(alpha) == ncol(X)) {
         X <- remove_intercept_column(X)
@@ -428,12 +428,12 @@ slise.object <- function(alpha,
         dist <- (c(X %*% alpha) - Y)^2
     }
     names(alpha) <- var_names
-    if (!is.null(impact)) names(impact) <- var_names
+    if (!is.null(terms)) names(terms) <- var_names
     subset <- dist <= epsilon^2
     value <- loss <- loss_sharp_res(alpha, dist, epsilon^2, lambda1, lambda2, weight)
     coefficients <- alpha
     out <- auto_named_list(
-        coefficients, alpha, subset, value, loss, impact, X, Y, x, y,
+        coefficients, alpha, subset, value, loss, terms, X, Y, x, y,
         lambda1, logit, lambda2, epsilon, weight, intercept
     )
     structure(out, class = "slise")
@@ -472,7 +472,7 @@ slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
     if (!is.null(x)) {
         out$normalised_x <- add_constant_columns(object$x, cc)
         out$normalised_y <- object$y
-        out$normalised_impact <- add_constant_columns(object$impact, cc + 1)
+        out$normalised_terms <- add_constant_columns(object$terms, cc + 1)
     }
     out$normalised_loss <- object$loss
     out$normalised_value <- object$value

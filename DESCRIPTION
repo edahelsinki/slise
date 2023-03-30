@@ -1,6 +1,6 @@
 Package: slise
 Title: Sparse Linear Subset Explanations
-Version: 2.1.0
+Version: 2.2.0
 Authors@R: c(
     person("Anton", "Björklund", email = "anton.bjorklund@helsinki.fi", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7749-2918")),
     person("Andreas", "Henelius", role = "aut", comment = c(ORCID = "0000-0002-4040-6967")),
