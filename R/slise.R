@@ -477,6 +477,8 @@ slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
     out$normalised_loss <- object$loss
     out$normalised_value <- object$value
     out$normalised_epsilon <- object$epsilon
+    out$loss <- object$loss
+    out$value <- object$value
     out
 }
 
