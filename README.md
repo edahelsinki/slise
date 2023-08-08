@@ -22,9 +22,9 @@ Finally, there is also the [documentation](https://edahelsinki.github.io/slise).
 > https://doi.org/10.1007/s10618-022-00819-2  
 
 > *Björklund A., Henelius A., Oikarinen E., Kallonen K., Puolamäki K.* (2023)  
-> **Explaining any black box model using real data.**
-> Frontiers in Computer Science 5:1143904.
-> https://doi.org/10.3389/fcomp.2023.1143904
+> **Explaining any black box model using real data.**  
+> Frontiers in Computer Science 5:1143904.  
+> https://doi.org/10.3389/fcomp.2023.1143904  
 
 
 ## The idea
