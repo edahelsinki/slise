@@ -1,7 +1,7 @@
 # This script contains the SLISE functions (slise.fit and slise.explain)
 
 
-#' Use SLISE for robust regression.
+#' SLISE for robust regression.
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -77,7 +77,7 @@ slise.fit <- function(X,
     out
 }
 
-#' Use SLISE for robust regression (using a formula).
+#' SLISE for robust regression (using a formula).
 #'
 #' It is highly recommended that you normalise the data,
 #' either before using SLISE or by setting normalise = TRUE.
@@ -207,7 +207,7 @@ slise.explain <- function(X,
     out
 }
 
-#' Use SLISE as a Black Box Explainer
+#' SLISE Black Box Explainer
 #' Use SLISE for explaining predictions made by a black box.
 #' BUT with a binary search for sparsity!
 #'
@@ -254,7 +254,7 @@ slise.explain_find <- function(..., lambda1 = 5, variables = 4, iters = 10, tres
     }
 }
 
-#' Use SLISE as a Black Box Explainer
+#' SLISE Black Box Explainer
 #' Use SLISE for explaining predictions made by a black box.
 #' BUT with sparsity from a combinatorial search rather than Lasso!
 #'
@@ -296,7 +296,7 @@ slise.explain_comb <- function(X, Y, epsilon, x, y = NULL, ..., variables = 4) {
     expl
 }
 
-#' Preprocess the data as necessary before running SLISE
+#'  Preprocess the data as necessary before running SLISE
 #'
 #' @param X Matrix of independent variables
 #' @param Y Vector of the target variable
@@ -409,9 +409,9 @@ slise.object <- function(alpha,
             alpha <- c(y - sum(x * alpha), alpha)
             intercept <- TRUE
         }
-        impact <- c(1, x) * alpha
+        terms <- c(1, x) * alpha
     } else {
-        impact <- NULL
+        terms <- NULL
     }
     if (intercept && length(alpha) == ncol(X)) {
         X <- remove_intercept_column(X)
@@ -428,12 +428,12 @@ slise.object <- function(alpha,
         dist <- (c(X %*% alpha) - Y)^2
     }
     names(alpha) <- var_names
-    if (!is.null(impact)) names(impact) <- var_names
+    if (!is.null(terms)) names(terms) <- var_names
     subset <- dist <= epsilon^2
     value <- loss <- loss_sharp_res(alpha, dist, epsilon^2, lambda1, lambda2, weight)
     coefficients <- alpha
     out <- auto_named_list(
-        coefficients, alpha, subset, value, loss, impact, X, Y, x, y,
+        coefficients, alpha, subset, value, loss, terms, X, Y, x, y,
         lambda1, logit, lambda2, epsilon, weight, intercept
     )
     structure(out, class = "slise")
@@ -472,15 +472,17 @@ slise.object_unnormalise <- function(object, X, Y, x = NULL, y = NULL) {
     if (!is.null(x)) {
         out$normalised_x <- add_constant_columns(object$x, cc)
         out$normalised_y <- object$y
-        out$normalised_impact <- add_constant_columns(object$impact, cc + 1)
+        out$normalised_terms <- add_constant_columns(object$terms, cc + 1)
     }
     out$normalised_loss <- object$loss
     out$normalised_value <- object$value
     out$normalised_epsilon <- object$epsilon
+    out$loss <- object$loss
+    out$value <- object$value
     out
 }
 
-#' Predict with a SLISE object
+#' Predict with a SLISE
 #'
 #' @param object SLISE object
 #' @param newdata data matrix
