@@ -8,22 +8,24 @@ template:
 navbar:
   bg: primary
   structure:
-    left:  [reference]
+    left: [reference]
     right: [search, github]
 home:
   name: SLISE
   sidebar:
     structure: [links, license, community, citation, authors, dev]
   links:
-  - text: Original paper
-    href: https://rdcu.be/bVbda
-  - text: Robust regression paper
-    href: https://rdcu.be/cFRHD
-  - text: Poster
-    href: https://github.com/edahelsinki/slise/raw/master/pdfs/poster.pdf
-  - text: Presentation
-    href: https://github.com/edahelsinki/slise/raw/master/pdfs/presentation.pdf
-  - text: Code reference
-    href: reference/index.html
-  - text: Python implementation
-    href: https://edahelsinki.github.io/pyslise
+    - text: Original conference paper
+      href: https://rdcu.be/bVbda
+    - text: Robust regression paper
+      href: https://rdcu.be/cFRHD
+    - text: Local explanations paper
+      href: https://www.frontiersin.org/articles/10.3389/fcomp.2023.1143904
+    - text: Poster
+      href: https://github.com/edahelsinki/slise/raw/master/pdfs/poster.pdf
+    - text: Presentation
+      href: https://github.com/edahelsinki/slise/raw/master/pdfs/presentation.pdf
+    - text: Code reference
+      href: reference/index.html
+    - text: Python implementation
+      href: https://edahelsinki.github.io/pyslise

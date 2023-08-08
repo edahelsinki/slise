@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/github/license/edahelsinki/slise)](https://github.com/edahelsinki/slise/blob/master/LICENSE)
 
 R implementation of the SLISE algorithm. The SLISE algorithm can be used for both robust regression and to explain outcomes from black box models. 
-For more details see the [original paper](https://rdcu.be/bVbda) or the [robust regression paper](https://rdcu.be/cFRHD). 
+For more details see the [conference paper](https://rdcu.be/bVbda), the [robust regression paper](https://rdcu.be/cFRHD) or the [local explanations paper](https://doi.org/10.3389/fcomp.2023.1143904). 
 Alternatively for a more informal overview see the [presentation](https://github.com/edahelsinki/slise/raw/master/pdfs/presentation.pdf), or the [poster](https://github.com/edahelsinki/slise/raw/master/pdfs/poster.pdf).
 Finally, there is also the [documentation](https://edahelsinki.github.io/slise).
 
@@ -20,6 +20,11 @@ Finally, there is also the [documentation](https://edahelsinki.github.io/slise).
 > **Robust regression via error tolerance.**  
 > Data Mining and Knowledge Discovery.  
 > https://doi.org/10.1007/s10618-022-00819-2  
+
+> *Björklund A., Henelius A., Oikarinen E., Kallonen K., Puolamäki K.* (2023)  
+> **Explaining any black box model using real data.**  
+> Frontiers in Computer Science 5:1143904.  
+> https://doi.org/10.3389/fcomp.2023.1143904  
 
 
 ## The idea
