@@ -21,8 +21,8 @@
 ##        Rscript --vanilla experiments/explanations/exp_comparison2.R
 ## --------------------------------------------------
 
-suppressMessages(source("experiments/explanations/data.R"))
-suppressMessages(source("experiments/explanations/methods.R"))
+source("experiments/explanations/data.R")
+source("experiments/explanations/methods.R")
 
 suppressMessages(suppressWarnings(library(e1071)))
 suppressMessages(suppressWarnings(library(tidyr)))
@@ -41,7 +41,7 @@ evaluate_expl <- function(data, index, treshold = 0.1, coverage_k = 100, ...) {
     time[1] <- proc.time()[3] - time[1]
     # Repeat explanation
     time[2] <- proc.time()[3]
-    expl2 <- data$expl_fn(data$X, data$Y, index)
+    expl2 <- data$expl_fn(data$X, data$Y, index, samples = 0) # Use default number of samples
     time[2] <- proc.time()[3] - time[2]
     # Approximations
     approx_Y <- expl$approx_fn(data$X)
@@ -70,17 +70,41 @@ evaluate_expl <- function(data, index, treshold = 0.1, coverage_k = 100, ...) {
         median(abs(approx_Y2 - data$Y), na.rm = TRUE)
     )
     # Consistency (does running the explanation multiple times give you the same result)
-    if (is.null(expl$coefficients)) {
+    suppressWarnings(if (is.null(expl$coefficients)) {
         consistency_a <- c(
             mean(abs(expl2$impact - expl$impact)) / mean(abs(expl$impact)),
             mean(abs(expl2$impact - expl$impact)) / mean(abs(expl2$impact))
+        )
+        consistency_pearson <- c(
+            cor.test(expl$impact, expl2$impact, method = "pearson")$estimate[[1]],
+            cor.test(expl2$impact, expl$impact, method = "pearson")$estimate[[1]]
+        )
+        consistency_spearman <- c(
+            cor.test(expl$impact, expl2$impact, method = "spearman")$estimate[[1]],
+            cor.test(expl2$impact, expl$impact, method = "spearman")$estimate[[1]]
+        )
+        consistency_kendall <- c(
+            cor.test(expl$impact, expl2$impact, method = "kendall")$estimate[[1]],
+            cor.test(expl2$impact, expl$impact, method = "kendall")$estimate[[1]]
         )
     } else {
         consistency_a <- c(
             mean(abs(expl2$coefficients - expl$coefficients)) / (mean(abs(expl$coefficients)) + 1e-8),
             mean(abs(expl2$coefficients - expl$coefficients)) / (mean(abs(expl2$coefficients)) + 1e-8)
         )
-    }
+        consistency_pearson <- c(
+            cor.test(expl$coefficients, expl2$coefficients, method = "pearson")$estimate[[1]],
+            cor.test(expl2$coefficients, expl$coefficients, method = "pearson")$estimate[[1]]
+        )
+        consistency_spearman <- c(
+            cor.test(expl$coefficients, expl2$coefficients, method = "spearman")$estimate[[1]],
+            cor.test(expl2$coefficients, expl$coefficients, method = "spearman")$estimate[[1]]
+        )
+        consistency_kendall <- c(
+            cor.test(expl$coefficients, expl2$coefficients, method = "kendall")$estimate[[1]],
+            cor.test(expl2$coefficients, expl$coefficients, method = "kendall")$estimate[[1]]
+        )
+    })
     consistency_b <- c(
         mean(abs(approx_Y - approx_Y2)),
         mean(abs(approx_Y - approx_Y2))
@@ -109,7 +133,10 @@ evaluate_expl <- function(data, index, treshold = 0.1, coverage_k = 100, ...) {
             stability_b = stability_b,
             consistency_a = consistency_a,
             consistency_b = consistency_b,
-            y = data$Y[index],
+            consistency_pearson = consistency_pearson,
+            consistency_spearman = consistency_spearman,
+            consistency_kendall = consistency_kendall,
+            y = unname(data$Y[index]),
             index = index,
             class = data$class,
             time = time,
@@ -355,11 +382,11 @@ print_results <- function(df1) {
     maxim <- function(x) mean(x) - sd(x) / 2 - 1e-6
     best <- df1 %>%
         group_by(data, method) %>%
-        summarise(Fidelity = minim(fidelity_a), Coverage = maxim(coverage_a), Stability = minim(stability_b)) %>%
+        summarise(Fidelity = minim(fidelity_a), Coverage = maxim(coverage_a), Consistency = maxim(consistency_kendall), Stability = minim(stability_b)) %>%
         group_by(data) %>%
-        summarise(Fidelity = min(Fidelity), Coverage = max(Coverage), Stability = min(Stability))
+        summarise(Fidelity = min(Fidelity), Coverage = max(Coverage), Consistency = max(Consistency[Consistency < 1.0 - 2e-6]), Stability = min(Stability))
     format_cell <- function(x, dat, metric, maximise) {
-        mx <- mean(x)
+        mx <- max(0, mean(x))
         val <- (best %>% filter(data == dat[1]))[[metric]][1]
         if ((maximise && mx > val) || (!maximise && mx < val)) {
             sprintf("$\\bf{%.3f \\pm %.3f}$", mx, sd(x))
@@ -370,8 +397,9 @@ print_results <- function(df1) {
     df <- df1 %>%
         group_by(data, method) %>%
         summarise(
-            Fidelity = format_cell(fidelity_a, data, "Fidelity", FALSE),
+            `Local accuracy` = format_cell(fidelity_a, data, "Fidelity", FALSE),
             Coverage = format_cell(coverage_a, data, "Coverage", TRUE),
+            Consistency = format_cell(consistency_kendall, data, "Consistency", TRUE),
             Stability = format_cell(stability_b, data, "Stability", FALSE)
         )
     tab <- print(

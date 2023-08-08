@@ -1,9 +1,9 @@
 # Helper methods for the experiments
 
-library(devtools)
-devtools::load_all()
+suppressMessages(library(devtools))
+suppressMessages(devtools::load_all())
 options(matprod = "blas")
-library(ggplot2)
+suppressMessages(suppressWarnings(library(ggplot2)))
 
 # Use the correct number of cores if running on a slurm-cluster
 cores_from_slurm <- as.integer(Sys.getenv("SLURM_CPUS_PER_TASK"))

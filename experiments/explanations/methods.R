@@ -2,7 +2,7 @@
 
 source("experiments/explanations/utils.R")
 
-require(keras)
+suppressMessages(require(keras))
 library(reticulate)
 library(tensorflow)
 
@@ -36,11 +36,14 @@ limeslise_emnist <- function(X,
     dimexp <- function(lx) {
         ifelse(segments %in% which(as.logical(lx)), x, x * 0 + replacement)
     }
+    if (samples <= 0) {
+        samples <- 5000
+    }
     X <- matrix(as.numeric(runif(samples * max_seg) > removed), samples, max_seg)
     X <- rbind(rep(1, ncol(X)), X)
     HX <- t(apply(X, 1, dimexp))
     Y <- predict_fn(HX)
-    weight <- exp(-apply(X, 1, cosine_distance, X[index, ]))
+    weight <- exp(-apply(HX, 1, cosine_distance, x))
     weight <- weight * length(Y) / sum(weight) # uniformly scale so that the same lambdas can be used
     expl <- slise.explain(X, Y, epsilon, 1, lambda1 = lambda1, lambda2 = lambda2, logit = TRUE, weight = weight)
     nh <- list(X = HX[expl$subset, ], Y = Y[expl$subset])
@@ -104,7 +107,11 @@ shap_emnist <- function(X,
     } else {
         stop("Unkown deletion method (must be one of invert, background, grey, or sample)")
     }
-    shap_values <- explainer$shap_values(item, nsamples = as.integer(samples), l1_reg = "aic", silent = TRUE)
+    if (samples > 0) {
+        shap_values <- explainer$shap_values(item, nsamples = as.integer(samples), l1_reg = "aic", silent = TRUE)
+    } else {
+        shap_values <- explainer$shap_values(item, l1_reg = "aic", silent = TRUE)
+    }
     if (length(shap_values) == 1) {
         shap_values <- shap_values[[1]]
     }
@@ -145,7 +152,11 @@ shap_tabular <- function(X, Y, index, predict_fn, class = FALSE, ..., samples = 
     py_pred <- reticulate::py_func(pred)
     item <- unname(X[index, , drop = FALSE])
     explainer <- shap$explainers$Sampling(py_pred, X)
-    shap_values <- explainer$shap_values(item, nsamples = as.integer(samples), l1_reg = "aic", silent = TRUE)
+    if (samples > 0) {
+        shap_values <- explainer$shap_values(item, nsamples = as.integer(samples), l1_reg = "aic", silent = TRUE)
+    } else {
+        shap_values <- explainer$shap_values(item, l1_reg = "aic", silent = TRUE)
+    }
     if (length(shap_values) == 1) {
         shap_values <- shap_values[[1]]
     }
@@ -323,7 +334,7 @@ lime_emnist <- function(X,
                         replacement = 0.5) {
     lime <- reticulate::import("lime")
     explainer <- lime$lime_image$LimeImageExplainer(verbose = verbose)
-    size <- sqrt(ncol(X))
+    size <- as.integer(sqrt(ncol(X)))
     py_img <- reticulate::r_to_py(matrix(X[index, ], size, size))
     nhX <- NULL
     nhY <- NULL
@@ -345,14 +356,24 @@ lime_emnist <- function(X,
     } else {
         stop("Uknown segmentation (must be one of original, small, or pixel)")
     }
-    expl <- explainer$explain_instance(
-        py_img,
-        classifier_fn = py_pred,
-        num_samples = as.integer(samples),
-        batch_size = as.integer(1000),
-        segmentation_fn = segmenter,
-        hide_color = replacement
-    )
+    if (samples > 0) {
+        expl <- explainer$explain_instance(
+            py_img,
+            classifier_fn = py_pred,
+            num_samples = as.integer(samples),
+            batch_size = as.integer(1000),
+            segmentation_fn = segmenter,
+            hide_color = replacement
+        )
+    } else {
+        expl <- explainer$explain_instance(
+            py_img,
+            classifier_fn = py_pred,
+            batch_size = as.integer(1000),
+            segmentation_fn = segmenter,
+            hide_color = replacement
+        )
+    }
     lime <<- expl
     intercept <- c(expl$intercept[[2]])
     local_exp <- c(expl$local_exp[[2]])
@@ -417,11 +438,18 @@ lime_tabular <- function(X, Y, index, predict_fn = NULL, class = FALSE, ..., dis
     }
     py_pred <- reticulate::py_func(pred)
     item <- reticulate::r_to_py(X[index, , drop = FALSE], FALSE)[0]
-    expl <- explainer$explain_instance(
-        item,
-        predict_fn = py_pred,
-        num_samples = as.integer(samples)
-    )
+    if (samples > 0) {
+        expl <- explainer$explain_instance(
+            item,
+            predict_fn = py_pred,
+            num_samples = as.integer(samples)
+        )
+    } else {
+        expl <- explainer$explain_instance(
+            item,
+            predict_fn = py_pred
+        )
+    }
     intercept <- c(expl$intercept[[1]])
     coef <- rep(0, ncol(X))
     for (ic in expl$local_exp[[1]]) {

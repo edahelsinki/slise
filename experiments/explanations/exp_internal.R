@@ -18,9 +18,9 @@ emnist_get_internal <- function(datadir = "experiments/data") {
     data <- readRDS(file.path(datadir, "emnist.rds"))
     pred <- readRDS(file.path(datadir, "emnist_preds.rds"))
     inter <- readRDS(file.path(datadir, "emnist_internal.rds"))
-    inter$image <- data$image[int$selected, ]
-    inter$label <- data$label[int$selected]
-    inter$pred <- sapply(seq_along(int$label), function(i) pred[int$selected[i], int$label[i] + 1])
+    inter$image <- data$image[inter$selected, ]
+    inter$label <- data$label[inter$selected]
+    inter$pred <- sapply(seq_along(inter$label), function(i) pred[inter$selected[i], inter$label[i] + 1])
     inter
 }
 
@@ -51,8 +51,8 @@ exp_internal <- function(dir = "experiments/results") {
     dev.off()
 }
 
-plot_internal <- function(slise, nodes, image = NULL, num_nodes = 6, impact = TRUE, bw = FALSE) {
-    selected <- order(-abs(if (impact) slise$impact[-1] else slise$alpha[-1]))
+plot_internal <- function(slise, nodes, image = NULL, num_nodes = 6, terms = TRUE, bw = FALSE) {
+    selected <- order(-abs(if (terms) slise$terms[-1] else slise$alpha[-1]))
     if (num_nodes < length(nodes)) {
         selected <- selected[1:num_nodes]
     } else {
@@ -70,21 +70,21 @@ plot_internal <- function(slise, nodes, image = NULL, num_nodes = 6, impact = TR
             facet_wrap(vars(Var1), labeller = labeller, nrow = 1) +
             theme_image(
                 legend.position = "left",
-                legend.box.margin = margin(c(0, -10, 0, 0))
+                legend.box.margin = ggplot2::margin(c(0, -10, 0, 0))
             ) + # , axis.title.y = element_text()) + labs(y = "Activation\nMaximisations")
             guides(fill = guide_legend(title.hjust = 0.5, label.position = "bottom"))
     }
     df <- data.frame(
         x = slise$x[selected],
         alpha = slise$alpha[-1][selected],
-        impact = slise$impact[-1][selected],
+        terms = slise$terms[-1][selected],
         name = factord(paste("Neuron", selected))
     )
-    labels <- factord(c("Activation", "Coefficient", "Impact"))
+    labels <- factord(c("Activation", "Coefficient", "Term"))
     cols_plot <- ggplot(df) +
         geom_col(aes(labels[1], x)) +
         geom_col(aes(labels[2], alpha)) +
-        geom_col(aes(labels[3], impact)) +
+        geom_col(aes(labels[3], terms)) +
         coord_flip() +
         scale_x_discrete(limits = rev) +
         facet_wrap(vars(name), nrow = 1) +
